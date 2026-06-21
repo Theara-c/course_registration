@@ -1,1 +1,14 @@
-@import 'tailwindcss'
+@import "tailwindcss";
+
+#hamburger, #close-bar {
+    display: none;
+} 
+@media  screen and  (max-width: 767px) {
+    #hamburger, #close-bar {
+        display: block;
+    }
+}
+#move:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s;
+}

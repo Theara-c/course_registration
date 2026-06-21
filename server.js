@@ -1,6 +1,6 @@
-import express from 'express';
+import app from './app.js'
 
-const server = express();
-server.get('/', async (req,res) => {
-    return res.json({msg: "Hello world"})
+
+app.listen(8000, () => {
+    console.log("Server is running on port 8000")
 })
