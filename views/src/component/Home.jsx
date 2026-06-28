@@ -126,7 +126,7 @@ const navigate = useNavigate();
         <div className="grid md:grid-cols-3 gap-6 mt-12">
 
           {chooseUs.map((item, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl border hover:bg-gray-200" id = 'move'>
+            <div key={index} className="bg-white p-6 rounded-xl hover:text-black border hover:bg-gray-200" id = 'move'>
               <div className="text-[#142175] text-xl mb-4">
                 {item.icon}
               </div>
@@ -208,20 +208,20 @@ const navigate = useNavigate();
       <section className="max-w-7xl mx-auto px-6 pb-20">
         <div className="bg-[#2F3FAE] rounded-3xl text-center py-16 px-8">
 
-          <h2 className="text-white text-4xl font-bold">
+          <p className="text-white text-3xl font-bold sm:text-xl">
             Ready to start your journey?
-          </h2>
+          </p>
 
           <p className="text-blue-100 mt-4">
             Join thousands of students and start learning today.
           </p>
 
           <div className="flex justify-center gap-4 mt-8 flex-wrap">
-            <button className="bg-cyan-400 px-6 py-3 rounded-lg font-medium">
+            <button className="bg-blue-500 px-6 py-3 text-black cursor-pointer rounded-lg font-medium hover:text-white">
               Enroll Now
             </button>
 
-            <button className="bg-white/10 text-white px-6 py-3 rounded-lg border border-white/20">
+            <button className="bg-white/10 cursor-pointer text-white px-6 py-3 rounded-lg border border-white/20">
               Become An Instructor
             </button>
           </div>
