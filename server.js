@@ -1,6 +1,19 @@
-import express from 'express';
+import express from "express";
+import dotenv from "dotenv";
 
-const server = express();
-server.get('/', async (req,res) => {
-    return res.json({msg: "Hello world"})
-})
+dotenv.config();
+
+const app = express();
+
+app.use(express.json());
+
+// Home route
+app.get("/", (req, res) => {
+    res.send("🎉 Course Registration API is running!");
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
