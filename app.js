@@ -1,14 +1,9 @@
-// app.js — FIXED:
-// 1. Removed duplicate app.use('/api/auth') and app.use('/api/lecturer')
-// 2. authRouter now imports from routes/auth.js (has /register + /login)
-//    instead of middleware/auth.js (only has protect + requireRole)
-// 3. Added adminRouter
-
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { pool } from "./database/db.js";
 import authRouter from "./routes/auth.js";
+import studentRouter from "./routes/student.js";
 import lecturerRouter from "./routes/lecturer.js";
 import adminRouter from "./routes/admin.js";
 
@@ -20,6 +15,9 @@ app.use(cors());
 
 // ── Auth (register + login — no token needed)
 app.use("/api/auth", authRouter);
+
+// Student routes (browse courses, enroll, dashboard)
+app.use("/api/student", studentRouter);
 
 // ── Lecturer routes (requires Lecturer token)
 app.use("/api/lecturer", lecturerRouter);

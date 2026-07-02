@@ -406,7 +406,7 @@ export default function AdminDashboard() {
                     <tr>
                       <th className="px-5 py-3 text-left">Title</th>
                       <th className="px-5 py-3 text-left">Category</th>
-                      <th className="px-5 py-3 text-left">Instructor</th>
+                      <th className="px-5 py-3 text-left">Lecturer</th>
                       <th className="px-5 py-3 text-left">Enrolled</th>
                       <th className="px-5 py-3 text-left">Status</th>
                       <th className="px-5 py-3 text-left">Actions</th>
