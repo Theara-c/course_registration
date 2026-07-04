@@ -12,6 +12,8 @@ function authHeaders() {
 
 export default function CreateCoursePage() {
   const navigate = useNavigate();
+  // Read user ID from localStorage so "Back to My Courses" links to the correct dashboard URL
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [form, setForm] = useState({
     title: "",
     category: "",
@@ -74,7 +76,7 @@ export default function CreateCoursePage() {
   return (
     <section className="max-w-2xl mx-auto px-6 py-10">
       <Link
-        to="/lecturer/dashboard"
+        to={`/lecturer/${user.user_id}/dashboard`}
         className="text-sm text-gray-500 hover:text-[#142175] mb-6 inline-flex items-center gap-1"
       >
         ← Back to My Courses

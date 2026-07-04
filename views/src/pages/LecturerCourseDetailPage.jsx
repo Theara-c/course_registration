@@ -14,6 +14,7 @@ function authHeaders() {
 export default function LecturerCourseDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [course, setCourse] = useState(null);
   const [students, setStudents] = useState([]);
   const [ratings, setRatings] = useState([]);
@@ -116,7 +117,7 @@ export default function LecturerCourseDetailPage() {
   return (
     <section className="max-w-4xl mx-auto px-6 py-10">
       <Link
-        to="/lecturer/dashboard"
+        to={`/lecturer/${user.user_id}/dashboard`}
         className="text-sm text-gray-500 hover:text-[#142175] mb-6 inline-flex items-center gap-1"
       >
         <i className="fa-solid fa-arrow-left"></i> Back to My Courses
