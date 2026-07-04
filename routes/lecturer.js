@@ -13,11 +13,21 @@ import {
   publishCourse,
   unpublishCourse,
   removeCourse,
+  getProfile,
+  updateProfile,
+  changePassword,
 } from "../controller/lecturerController.js";
 
 const router = express.Router();
 
 router.use(protect, requireRole("Lecturer"));
+
+// Profile
+router.get("/profile", getProfile);
+router.put("/profile", updateProfile);
+
+// Password change (inside settings page)
+router.put("/settings/password", changePassword);
 
 // VIEW ALL — separate action, just reads the lecturer's own course list
 router.get("/courses", listMyCourses);
