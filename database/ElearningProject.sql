@@ -548,3 +548,118 @@ INSERT INTO activity_log (user_id, action, target_type, target_id) VALUES
 (46, 'Submitted rating', 'Rating', 51),
 (11, 'Updated profile', 'User', 52),
 (59, 'Password changed', 'User', 32);
+-- migration_add_lessons_progress.sql
+-- Run this ONCE in MySQL Workbench on your elearning database.
+-- This adds a proper lesson table (multiple lessons per course) and
+-- a lesson_progress table (tracks which lessons each student completed).
+-- Your existing tables (course, enrollment, rating) are NOT changed.
+
+USE elearning;
+
+-- ── 1. Lesson table ─────────────────────────────────────────────────────────
+-- One course can now have MULTIPLE lessons (videos/documents).
+-- The existing course.videoURL stays for backward compatibility — it becomes
+-- the "preview video" shown on the course detail page before enrolling.
+
+CREATE TABLE IF NOT EXISTS lesson (
+  lesson_id    INT PRIMARY KEY AUTO_INCREMENT,
+  course_id    INT NOT NULL,
+  title        VARCHAR(255) NOT NULL,
+  description  TEXT,
+  videoURL     VARCHAR(255),           -- YouTube link or video URL
+  duration     INT DEFAULT 0,          -- duration in minutes
+  lesson_order INT DEFAULT 1,          -- display order inside the course
+  created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE
+);
+
+-- ── 2. Lesson progress table ─────────────────────────────────────────────────
+-- Records which student completed which lesson, and when.
+-- is_completed = 1 means student has finished watching that lesson.
+
+CREATE TABLE IF NOT EXISTS lesson_progress (
+  progress_id  INT PRIMARY KEY AUTO_INCREMENT,
+  enrollment_id INT NOT NULL,          -- links to enrollment (student + course)
+  lesson_id    INT NOT NULL,
+  is_completed BOOLEAN DEFAULT FALSE,
+  completed_at DATETIME,
+  created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (enrollment_id) REFERENCES enrollment(enrollment_id) ON DELETE CASCADE,
+  FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id) ON DELETE CASCADE,
+  UNIQUE KEY unique_progress (enrollment_id, lesson_id)  -- one record per student per lesson
+);
+
+-- ── 3. Sample data ───────────────────────────────────────────────────────────
+-- Adds lessons to the 5 existing courses so the progress feature
+-- has real data to show immediately after running this migration.
+
+-- Course 1: Introduction to SQL Normalization (course_id = 1)
+INSERT IGNORE INTO lesson (course_id, title, description, videoURL, duration, lesson_order) VALUES
+(1, 'What is Normalization?', 'Introduction to database normalization concepts.', 'https://www.youtube.com/watch?v=GFQaEYEc8_8', 15, 1),
+(1, 'First Normal Form (1NF)', 'Understanding atomic values and eliminating repeating groups.', 'https://www.youtube.com/watch?v=J-drts3N9kI', 20, 2),
+(1, 'Second Normal Form (2NF)', 'Partial dependency removal in relational tables.', 'https://www.youtube.com/watch?v=J-drts3N9kI', 25, 3),
+(1, 'Third Normal Form (3NF)', 'Transitive dependency and full normalization.', 'https://www.youtube.com/watch?v=J-drts3N9kI', 20, 4),
+(1, 'Practice: Normalize a Real Schema', 'Hands-on normalization of a sample database.', 'https://www.youtube.com/watch?v=J-drts3N9kI', 30, 5);
+
+-- Course 2: Advanced React Patterns (course_id = 2)
+INSERT IGNORE INTO lesson (course_id, title, description, videoURL, duration, lesson_order) VALUES
+(2, 'Custom Hooks Deep Dive', 'Build reusable logic with custom React hooks.', 'https://www.youtube.com/watch?v=6ThXsUwLWvc', 20, 1),
+(2, 'Context API vs Redux', 'Choosing the right state management solution.', 'https://www.youtube.com/watch?v=6ThXsUwLWvc', 30, 2),
+(2, 'Portals and Refs', 'Advanced rendering techniques with portals.', 'https://www.youtube.com/watch?v=6ThXsUwLWvc', 25, 3),
+(2, 'Performance with useMemo', 'Optimizing renders with memoization.', 'https://www.youtube.com/watch?v=6ThXsUwLWvc', 20, 4);
+
+-- Course 3: ESP32 & Microcontroller Baselines (course_id = 3)
+INSERT IGNORE INTO lesson (course_id, title, description, videoURL, duration, lesson_order) VALUES
+(3, 'ESP32 Setup & GPIO Basics', 'Installing toolchain and blinking your first LED.', 'https://www.youtube.com/watch?v=GfDZo3mV4_0', 25, 1),
+(3, 'Serial Communication', 'UART, SPI, and I2C protocols explained.', 'https://www.youtube.com/watch?v=GfDZo3mV4_0', 30, 2),
+(3, 'Servo Motor Control', 'Controlling servo motors with PWM signals.', 'https://www.youtube.com/watch?v=GfDZo3mV4_0', 35, 3);
+
+-- Course 4: Fundamentals of UI/UX Prototyping (course_id = 4)
+INSERT IGNORE INTO lesson (course_id, title, description, videoURL, duration, lesson_order) VALUES
+(4, 'Typography Hierarchy', 'Choosing and pairing typefaces for UI.', 'https://www.youtube.com/watch?v=yNDgFK2Jj1E', 20, 1),
+(4, 'Wireframing in Figma', 'Low-fidelity wireframing workflow.', 'https://www.youtube.com/watch?v=yNDgFK2Jj1E', 30, 2),
+(4, 'Color Theory for UI', 'Accessible color palettes and contrast ratios.', 'https://www.youtube.com/watch?v=yNDgFK2Jj1E', 25, 3),
+(4, 'High-Fidelity Prototypes', 'Interactive prototyping and handoff to developers.', 'https://www.youtube.com/watch?v=yNDgFK2Jj1E', 35, 4);
+
+-- Course 5: Git Version Control for Teams (course_id = 5)
+INSERT IGNORE INTO lesson (course_id, title, description, videoURL, duration, lesson_order) VALUES
+(5, 'Git Fundamentals', 'Commits, branches, and the staging area.', 'https://www.youtube.com/watch?v=RGOj5yH7evk', 20, 1),
+(5, 'Branching Strategies', 'GitFlow vs trunk-based development.', 'https://www.youtube.com/watch?v=RGOj5yH7evk', 25, 2),
+(5, 'Resolving Merge Conflicts', 'Practical conflict resolution techniques.', 'https://www.youtube.com/watch?v=RGOj5yH7evk', 30, 3),
+(5, 'CI/CD Pipeline Integration', 'Connecting Git to automated deployment.', 'https://www.youtube.com/watch?v=RGOj5yH7evk', 20, 4);
+
+-- ── 4. Sample progress ───────────────────────────────────────────────────────
+-- Adds realistic progress records for existing enrollments so the
+-- "Student Learning Progress" section shows real data immediately.
+-- enrollment_id 1 = user_id 1, course_id 2 (Completed)
+-- enrollment_id 2 = user_id 2, course_id 3 (Enrolled)
+-- enrollment_id 3 = user_id 4, course_id 4 (Enrolled)
+-- enrollment_id 4 = user_id 6, course_id 1 (Completed)
+
+-- Sophea (enrollment 1) completed all 4 lessons of React course
+INSERT IGNORE INTO lesson_progress (enrollment_id, lesson_id, is_completed, completed_at) VALUES
+(1, 6, TRUE, '2026-06-24 09:00:00'),
+(1, 7, TRUE, '2026-06-24 10:00:00'),
+(1, 8, TRUE, '2026-06-25 09:00:00'),
+(1, 9, TRUE, '2026-06-26 10:00:00');
+
+-- Rithy (enrollment 2) completed 1 of 3 ESP32 lessons
+INSERT IGNORE INTO lesson_progress (enrollment_id, lesson_id, is_completed, completed_at) VALUES
+(2, 11, TRUE, '2026-06-27 16:00:00'),
+(2, 12, FALSE, NULL),
+(2, 13, FALSE, NULL);
+
+-- Bona (enrollment 3) completed 2 of 4 UI/UX lessons
+INSERT IGNORE INTO lesson_progress (enrollment_id, lesson_id, is_completed, completed_at) VALUES
+(3, 14, TRUE, '2026-06-27 20:00:00'),
+(3, 15, TRUE, '2026-06-27 22:00:00'),
+(3, 16, FALSE, NULL),
+(3, 17, FALSE, NULL);
+
+-- Chantra (enrollment 4) completed all 5 SQL lessons
+INSERT IGNORE INTO lesson_progress (enrollment_id, lesson_id, is_completed, completed_at) VALUES
+(4, 1, TRUE, '2026-06-23 10:00:00'),
+(4, 2, TRUE, '2026-06-23 11:00:00'),
+(4, 3, TRUE, '2026-06-24 10:00:00'),
+(4, 4, TRUE, '2026-06-24 11:00:00'),
+(4, 5, TRUE, '2026-06-25 10:00:00');
