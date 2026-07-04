@@ -18,6 +18,8 @@ import StudentDashboard from "./pages/StudentDashboard.jsx";
 import LecturerDashboard from "./pages/LecturerDashboard.jsx";
 import CreateCoursePage from "./pages/CreateCoursePage.jsx";
 import LecturerCourseDetailPage from "./pages/LecturerCourseDetailPage.jsx";
+import LecturerProfile from "./pages/LecturerProfile.jsx";
+import LecturerSettings from "./pages/LecturerSettings.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 import Test from "./pages/Test.jsx";
@@ -63,6 +65,11 @@ function App() {
             <Route
               path="/lecturer/courses/:id"
               element={<LecturerCourseDetailPage />}
+            />
+            <Route path="/lecturer/:id/profile" element={<LecturerProfile />} />
+            <Route
+              path="/lecturer/:id/settings"
+              element={<LecturerSettings />}
             />
             {/* Admin */}
             <Route path="/admin/:id/dashboard" element={<AdminDashboard />} />

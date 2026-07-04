@@ -6,7 +6,7 @@ function Layout() {
   const path = useLocation().pathname;
   const isAuthPage = path === "/login" || path === "/signup";
 
-  const isDashboard = path.includes("/dashboard") || path.includes("/watch");
+  // const isDashboard = path.includes("/dashboard") || path.includes("/watch");
   // return (
   //   <>
   //     {!isAuthPage && <Navbar />}
@@ -17,17 +17,22 @@ function Layout() {
   //     <Footer />
   //   </>
   // );
+  const hasOwnLayout =
+    path.includes("/students/") ||
+    path.includes("/lecturer/") ||
+    path.includes("/admin/") ||
+    path.includes("/watch");
   return (
     <div className="flex flex-col min-h-screen bg-[#F8FAFC]">
       {/* Hide standard layout shell chrome on app workspaces */}
-      {!isAuthPage && !isDashboard && <Navbar />}
+      {!isAuthPage && !hasOwnLayout && <Navbar />}
 
       <main className="flex-grow w-full">
         <Outlet />
       </main>
-      <Footer />
+      {/* <Footer /> */}
 
-      {/* {!isAuthPage && !isDashboard && <Footer />} */}
+      {!isAuthPage && !hasOwnLayout && <Footer />}
     </div>
   );
 }
