@@ -1,5 +1,5 @@
 // pages/AdminDashboard.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -11,6 +11,15 @@ function authHeaders() {
   return { headers: { Authorization: `Bearer ${token}` } };
 }
 
+// ── Extraction helper utility for robust video handling ──
+function getYouTubeId(url) {
+  if (!url) return null;
+  // Match standard watch links, embed links, and shortened share links
+  //  CORRECT (unescaped query characters)
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+}
 // ── Small stat card ──
 function StatCard({ label, value, icon, color }) {
   return (
@@ -38,6 +47,10 @@ export default function AdminDashboard() {
   // Dashboard stats
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
+  const [pendingCourses, setPendingCourses] = useState([]);
+  const [pendingLecturers, setPendingLecturers] = useState([]);
+  // Video Preview Modal State
+  const [previewCourse, setPreviewCourse] = useState(null);
 
   // Users
   const [users, setUsers] = useState([]);
@@ -60,6 +73,28 @@ export default function AdminDashboard() {
     navigate("/login");
   }
 
+  // ── Unified operational data fetch block ──
+  const loadDashboardOverview = useCallback(() => {
+    axios
+      .get(`${API}/stats`, authHeaders())
+      .then((r) => setStats(r.data))
+      .catch(console.error);
+    axios
+      .get(`${API}/activity`, authHeaders())
+      .then((r) => setActivity(r.data))
+      .catch(console.error);
+    axios
+      .get(`${API}/courses`, {
+        ...authHeaders(),
+        params: { status: "Pending" },
+      })
+      .then((r) => setPendingCourses(r.data))
+      .catch(console.error);
+    axios
+      .get(`${API}/lecturers/pending`, authHeaders())
+      .then((r) => setPendingLecturers(r.data))
+      .catch(console.error);
+  }, []);
   // ── Load stats on mount ──
   useEffect(() => {
     axios
@@ -70,7 +105,20 @@ export default function AdminDashboard() {
       .get(`${API}/activity`, authHeaders())
       .then((r) => setActivity(r.data))
       .catch(console.error);
+
+    // Fetch courses with "Pending" status for the main alert desk queue
+    axios
+      .get(`${API}/courses`, {
+        ...authHeaders(),
+        params: { status: "Pending" },
+      })
+      .then((r) => setPendingCourses(r.data))
+      .catch(console.error);
   }, []);
+  // ── Load stats once on mount or when dashboard actions prompt refresh ──
+  useEffect(() => {
+    loadDashboardOverview();
+  }, [loadDashboardOverview]);
 
   // ── Load users when Users tab active or filters change ──
   useEffect(() => {
@@ -129,6 +177,28 @@ export default function AdminDashboard() {
     }
   }
 
+  async function handleApproveLecturer(userId, name) {
+    try {
+      await axios.put(`${API}/lecturers/${userId}/approve`, {}, authHeaders());
+      toast.success(`${name} is now an approved Lecturer 🎉`);
+      setPendingLecturers((prev) => prev.filter((l) => l.user_id !== userId));
+      loadDashboardOverview();
+    } catch {
+      toast.error("Failed to approve lecturer");
+    }
+  }
+
+  async function handleRejectLecturer(userId, name) {
+    if (!confirm(`Reject the lecturer request from "${name}"?`)) return;
+    try {
+      await axios.put(`${API}/lecturers/${userId}/reject`, {}, authHeaders());
+      toast.info(`${name}'s lecturer request was rejected.`);
+      setPendingLecturers((prev) => prev.filter((l) => l.user_id !== userId));
+    } catch {
+      toast.error("Failed to reject lecturer");
+    }
+  }
+
   async function handleCourseStatus(courseId, status) {
     try {
       await axios.put(
@@ -140,6 +210,12 @@ export default function AdminDashboard() {
       setCourses((prev) =>
         prev.map((c) => (c.course_id === courseId ? { ...c, status } : c)),
       );
+      setPendingCourses((prev) => prev.filter((c) => c.course_id !== courseId));
+
+      // Refresh overall counter stats safely
+      loadDashboardOverview();
+
+      if (previewCourse?.course_id === courseId) setPreviewCourse(null);
     } catch {
       toast.error("Failed to update course");
     }
@@ -151,6 +227,12 @@ export default function AdminDashboard() {
       await axios.delete(`${API}/courses/${courseId}`, authHeaders());
       toast.success("Course deleted");
       setCourses((prev) => prev.filter((c) => c.course_id !== courseId));
+
+      setPendingCourses((prev) => prev.filter((c) => c.course_id !== courseId));
+
+      loadDashboardOverview();
+
+      if (previewCourse?.course_id === courseId) setPreviewCourse(null);
     } catch {
       toast.error("Failed to delete course");
     }
@@ -161,6 +243,12 @@ export default function AdminDashboard() {
     Lecturer: "bg-purple-100 text-purple-700",
     Administrator: "bg-red-100 text-red-700",
   };
+
+  // Safe runtime execution assignment for active target checks
+  const youtubeId = previewCourse
+    ? previewCourse.video_id ||
+      getYouTubeId(previewCourse.video_url || previewCourse.video)
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -250,39 +338,173 @@ export default function AdminDashboard() {
               />
             </div>
 
-            <h2 className="text-lg font-bold text-gray-800 mb-4">
-              Recent Activity
-            </h2>
-            <div className="bg-white rounded-xl shadow-sm border divide-y">
-              {activity.length === 0 ? (
-                <p className="p-6 text-gray-500 text-sm">No recent activity.</p>
-              ) : (
-                activity.map((log) => (
-                  <div
-                    key={log.log_id}
-                    className="flex items-center gap-4 px-5 py-3 text-sm"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-[#142175]/10 flex items-center justify-center shrink-0">
-                      <i className="fa-solid fa-bolt text-[#142175] text-xs"></i>
-                    </div>
-                    <div className="flex-1">
-                      <span className="font-medium text-gray-800">
-                        {log.full_name || "Unknown"}
-                      </span>
-                      <span className="text-gray-500"> — {log.action}</span>
-                      {log.target_type && (
-                        <span className="text-gray-400">
-                          {" "}
-                          ({log.target_type} #{log.target_id})
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-gray-400 whitespace-nowrap">
-                      {new Date(log.created_at).toLocaleString()}
-                    </span>
+            {/* Split Arena Grid Structure layout section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* LEFT SIDE: Active Action Notification Requests items */}
+              <div className="lg:col-span-2 bg-white rounded-xl border shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b">
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-bell-exclamation text-amber-500"></i>
+                    <h2 className="text-base font-bold text-gray-800">
+                      Pending Approvals & Verification
+                    </h2>
                   </div>
-                ))
-              )}
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                    {pendingCourses.length} pending
+                  </span>
+                </div>
+
+                {pendingCourses.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400 text-sm italic">
+                    <i className="fa-solid fa-circle-check text-2xl text-gray-200 block mb-2"></i>
+                    All caught up! No course review requests waiting.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {pendingCourses.map((c) => (
+                      <div
+                        key={c.course_id}
+                        className="p-4 rounded-xl border border-amber-200 bg-amber-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      >
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
+                            {c.category || "General"}
+                          </span>
+                          <h3 className="text-sm font-semibold text-gray-800 mt-1 line-clamp-1">
+                            {c.title}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            By Lecturer:{" "}
+                            <span className="font-medium text-gray-700">
+                              {c.instructor_name}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          <button
+                            onClick={() => setPreviewCourse(c)}
+                            className="px-3 py-1.5 bg-white border rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 shadow-sm flex items-center gap-1.5 transition"
+                          >
+                            <i className="fa-solid fa-video text-gray-400"></i>{" "}
+                            Review Video
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleCourseStatus(c.course_id, "Active")
+                            }
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg shadow-sm transition"
+                          >
+                            Approve
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* LEFT SIDE (cont.): Lecturer Account Approval Queue */}
+              <div className="lg:col-span-2 bg-white rounded-xl border shadow-sm p-6">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b">
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-chalkboard-teacher text-purple-500"></i>
+                    <h2 className="text-base font-bold text-gray-800">
+                      Lecturer Signup Requests
+                    </h2>
+                  </div>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">
+                    {pendingLecturers.length} pending
+                  </span>
+                </div>
+
+                {pendingLecturers.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400 text-sm italic">
+                    <i className="fa-solid fa-circle-check text-2xl text-gray-200 block mb-2"></i>
+                    No lecturer accounts waiting for confirmation.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {pendingLecturers.map((l) => (
+                      <div
+                        key={l.user_id}
+                        className="p-4 rounded-xl border border-purple-200 bg-purple-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                            {l.full_name?.charAt(0)?.toUpperCase() || "?"}
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-800">
+                              {l.full_name}
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                              {l.email}
+                              {l.specialization ? ` · ${l.specialization}` : ""}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          <button
+                            onClick={() =>
+                              handleRejectLecturer(l.user_id, l.full_name)
+                            }
+                            className="px-3 py-1.5 bg-white border rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 shadow-sm transition"
+                          >
+                            <i className="fa-solid fa-xmark mr-1"></i>
+                            Reject
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleApproveLecturer(l.user_id, l.full_name)
+                            }
+                            className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg shadow-sm transition"
+                          >
+                            <i className="fa-solid fa-check mr-1"></i>
+                            Approve
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* RIGHT SIDE: System Action Event Logs stream stream */}
+              <div className="bg-white rounded-xl border shadow-sm p-6 h-fit">
+                <div className="flex items-center gap-2 mb-4 pb-2 border-b">
+                  <i className="fa-solid fa-bolt text-indigo-500"></i>
+                  <h2 className="text-lg font-bold text-gray-800">
+                    Recent Activity
+                  </h2>
+                </div>
+                <div className="bg-white rounded-xl shadow-sm border divide-y">
+                  {activity.length === 0 ? (
+                    <p className="p-6 text-gray-500 text-sm">No items found.</p>
+                  ) : (
+                    activity.slice(0, 10).map((log) => (
+                      <div
+                        key={log.log_id}
+                        className="py-3 text-xs first:pt-0 last:pb-0"
+                      >
+                        <p className="text-gray-700">
+                          <strong className="text-gray-900">
+                            {log.full_name || "System"}
+                          </strong>{" "}
+                          — {log.action}
+                          {log.target_type && (
+                            <span className="text-gray-400">
+                              {" "}
+                              ({log.target_type} #{log.target_id})
+                            </span>
+                          )}
+                        </p>
+                        <span className="text-[10px] text-gray-400 block mt-1">
+                          {new Date(log.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -393,6 +615,7 @@ export default function AdminDashboard() {
               >
                 <option value="">All Status</option>
                 <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
@@ -429,7 +652,7 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-5 py-3">
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${c.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${c.status === "Active" ? "bg-green-100 text-green-700" : c.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-500"}`}
                           >
                             {c.status}
                           </span>
@@ -524,6 +747,99 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+      {/* ── INTERACTIVE VIDEO INSPECTION MODAL WINDOW SYSTEM ── */}
+      {previewCourse && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl border w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Header section */}
+            <div className="px-6 py-4 border-b flex items-center justify-between bg-gray-50">
+              <div>
+                <span className="text-[10px] font-bold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded tracking-wide uppercase">
+                  {previewCourse.category || "Verification Required"}
+                </span>
+                <h3 className="text-base font-bold text-gray-800 mt-0.5">
+                  {previewCourse.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setPreviewCourse(null)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition"
+              >
+                <i className="fa-solid fa-xmark text-lg"></i>
+              </button>
+            </div>
+
+            {/* Video Box Area */}
+            <div className="p-6 space-y-4">
+              {youtubeId ? (
+                <div className="aspect-video w-full rounded-xl overflow-hidden bg-black shadow-inner border">
+                  <iframe
+                    className="w-full h-full"
+                    src={`https://www.youtube.com/embed/${youtubeId}`}
+                    title="Course Submission Material"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              ) : (
+                <div className="aspect-video w-full rounded-xl bg-slate-100 border border-dashed flex flex-col items-center justify-center text-gray-400 text-sm text-center px-6">
+                  <i className="fa-solid fa-video-slash text-3xl mb-2 text-gray-300"></i>
+                  No introduction video attached to this submission packet.
+                  <span className="text-xs text-gray-400 mt-1">
+                    This course can't be approved until the lecturer adds one.
+                  </span>
+                </div>
+              )}
+
+              <div>
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                  About Course content
+                </h4>
+                <p className="text-sm text-gray-600 bg-slate-50 border p-3 rounded-lg leading-relaxed max-h-32 overflow-y-auto">
+                  {previewCourse.description ||
+                    "No specific detailed description content supplied for this record item entry."}
+                </p>
+                <p className="text-xs text-gray-400 mt-2">
+                  Submitted by Lecturer:{" "}
+                  <strong className="text-gray-600">
+                    {previewCourse.instructor_name}
+                  </strong>
+                </p>
+              </div>
+            </div>
+
+            {/* Footer actions block */}
+            <div className="px-6 py-4 bg-gray-50 border-t flex items-center justify-end gap-2">
+              <button
+                onClick={() => setPreviewCourse(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() =>
+                  handleDeleteCourse(
+                    previewCourse.course_id,
+                    previewCourse.title,
+                  )
+                }
+                className="px-4 py-2 text-sm font-medium border border-red-200 text-red-600 hover:bg-red-50 rounded-lg transition"
+              >
+                Reject / Delete
+              </button>
+              <button
+                onClick={() =>
+                  handleCourseStatus(previewCourse.course_id, "Active")
+                }
+                className="px-4 py-2 text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg shadow-sm transition"
+              >
+                Approve & Publish Live
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

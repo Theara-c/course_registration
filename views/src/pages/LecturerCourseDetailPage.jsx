@@ -23,6 +23,7 @@ export default function LecturerCourseDetailPage() {
     title: "",
     description: "",
     video_id: "",
+    price: 0,
   });
   const [saving, setSaving] = useState(false);
 
@@ -125,16 +126,65 @@ export default function LecturerCourseDetailPage() {
 
       {/* ── Header Card Layout ── */}
       <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
+        {/* ── Admin Validation Alerts Context Block ── */}
+        {course.status === "Pending" && (
+          <div className="mb-5 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-4 text-sm flex items-center gap-2">
+            <i className="fa-solid fa-clock-rotate-left text-amber-600 text-base"></i>
+            <span>
+              This course is <strong>Pending Admin Review</strong>. It will
+              automatically become accessible to students once approved.
+            </span>
+          </div>
+        )}
+
+        {course.status === "Inactive" && (
+          <div className="mb-5 bg-rose-50 border border-rose-200 text-rose-900 rounded-lg p-4 text-sm flex items-center gap-2">
+            <i className="fa-solid fa-circle-xmark text-rose-600 text-base"></i>
+            <div>
+              <p className="font-semibold">Course Rejected / Inactive</p>
+              <p className="text-xs text-rose-700 mt-0.5">
+                The administrator rejected this submission or modified its
+                visibility status. Please correct files or parameters and hit
+                submit to request a re-review.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {course.status === "Active" && (
+          <div className="mb-5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-lg p-4 text-sm flex items-center gap-2">
+            <i className="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+            <span>
+              This course has been <strong>Approved by Admin</strong> and is
+              fully open for Student enrollment!
+            </span>
+          </div>
+        )}
+
         <div className="flex items-start justify-between mb-3">
           <div>
             <h1 className="text-xl font-bold text-gray-800">{course.title}</h1>
+
+            {/* Premium / Free Tag Indicator */}
+            <span
+              className={`text-[10px] px-2 py-0.5 font-bold rounded ${
+                Number(course.price) === 0
+                  ? "bg-gray-100 text-gray-600"
+                  : "bg-indigo-600 text-white"
+              }`}
+            >
+              {Number(course.price) === 0 ? "FREE" : `$${course.price}`}
+            </span>
+
             <p className="text-sm text-gray-500">{course.category}</p>
           </div>
           <span
             className={`text-xs px-3 py-1 rounded-full font-medium ${
               course.status === "Active"
                 ? "bg-green-100 text-green-700"
-                : "bg-gray-100 text-gray-600"
+                : course.status === "Pending"
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-red-100 text-red-700"
             }`}
           >
             {course.status}
@@ -156,12 +206,16 @@ export default function LecturerCourseDetailPage() {
             {editing ? "Cancel Edit" : "Edit Course"}
           </button>
 
-          {course.status === "Inactive" || course.status === "Draft" ? (
+          {course.status !== "Active" ? (
             <button
               onClick={handlePublish}
-              className="px-4 py-2 rounded-lg bg-[#142175] text-white text-sm font-medium hover:bg-[#0d185a]"
+              disabled={course.status === "Pending"}
+              className="px-4 py-2 rounded-lg bg-[#142175] text-white text-sm font-medium hover:bg-[#0d185a] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <i className="fa-solid fa-upload mr-2"></i> Publish Course
+              <i className="fa-solid fa-upload mr-2"></i>
+              {course.status === "Pending"
+                ? "Awaiting Review"
+                : "Submit for Approval"}
             </button>
           ) : (
             <button
@@ -197,6 +251,24 @@ export default function LecturerCourseDetailPage() {
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-[#142175]"
             />
           </div>
+
+          {/* Price Input Block Layer */}
+          <div>
+            <label className="text-xs text-gray-500 block mb-1 uppercase font-medium">
+              Course Pricing Plan ($ USD)
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={form.price === undefined ? "" : form.price}
+              onChange={(e) =>
+                setForm({ ...form, price: Number(e.target.value) })
+              }
+              placeholder="Leave 0 for clear Free classification access tier"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-[#142175]"
+            />
+          </div>
+
           <div>
             <label className="text-xs text-gray-500 block mb-1 uppercase font-medium">
               Description

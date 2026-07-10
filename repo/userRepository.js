@@ -20,10 +20,11 @@ const createUser = async ({
   gender,
   date_of_birth,
   user_role,
+  account_status,
 }) => {
   const [result] = await pool.query(
-    `INSERT INTO users (full_name, email, password, phone_number, gender, date_of_birth, user_role)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO users (full_name, email, password, phone_number, gender, date_of_birth, user_role, account_status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       full_name,
       email,
@@ -32,6 +33,7 @@ const createUser = async ({
       gender || null,
       date_of_birth || null,
       user_role || "Student",
+      account_status || "Approved",
     ],
   );
   return result.insertId; // Returns the newly generated user_id

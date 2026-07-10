@@ -32,6 +32,34 @@ const deleteUser = async (userId) => {
   await pool.query("DELETE FROM users WHERE user_id = ?", [userId]);
 };
 
+// ── Lecturer approval workflow ──
+const getPendingLecturers = async () => {
+  const [rows] = await pool.query(
+    `SELECT user_id, full_name, email, phone_number, gender, date_of_birth,
+            specialization, user_role, account_status, create_at
+     FROM users
+     WHERE user_role = 'Lecturer' AND account_status = 'Pending'
+     ORDER BY create_at DESC`,
+  );
+  return rows;
+};
+
+const setLecturerStatus = async (userId, status) => {
+  const [result] = await pool.query(
+    `UPDATE users SET account_status = ?
+     WHERE user_id = ? AND user_role = 'Lecturer'`,
+    [status, userId],
+  );
+  return result.affectedRows > 0;
+};
+
+const logActivity = async (userId, action, targetType, targetId) => {
+  await pool.query(
+    `INSERT INTO activity_log (user_id, action, target_type, target_id) VALUES (?, ?, ?, ?)`,
+    [userId || null, action, targetType || null, targetId || null],
+  );
+};
+
 // ── Courses ──
 const getAllCourses = async ({ status = "", search = "" } = {}) => {
   let sql = `SELECT c.*, u.full_name AS instructor_name,
@@ -112,6 +140,9 @@ export {
   getAllUsers,
   getUserById,
   deleteUser,
+  getPendingLecturers,
+  setLecturerStatus,
+  logActivity,
   getAllCourses,
   setCourseStatus,
   deleteCourse,

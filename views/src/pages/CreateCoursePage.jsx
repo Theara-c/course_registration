@@ -10,6 +10,17 @@ function authHeaders() {
   return { headers: { Authorization: `Bearer ${token}` } };
 }
 
+function extractYouTubeId(input) {
+  if (!input) return null;
+  const value = input.trim();
+  if (!value) return null;
+  if (/^[a-zA-Z0-9_-]{11}$/.test(value)) return value;
+  const regExp =
+    /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = value.match(regExp);
+  return match && match[2] && match[2].length === 11 ? match[2] : null;
+}
+
 export default function CreateCoursePage() {
   const navigate = useNavigate();
   // Read user ID from localStorage so "Back to My Courses" links to the correct dashboard URL
@@ -19,8 +30,9 @@ export default function CreateCoursePage() {
     category: "",
     description: "",
     sub_description: "",
-    videoURL: "",
+    video_id: "",
     duration: "",
+    price: 0,
   });
   const [saving, setSaving] = useState(false);
 
@@ -40,6 +52,17 @@ export default function CreateCoursePage() {
       toast.error("Category is required");
       return;
     }
+    const cleanVideoId = extractYouTubeId(form.video_id);
+    if (!form.video_id.trim()) {
+      toast.error(
+        "An intro video is required — the Admin needs something to review.",
+      );
+      return;
+    }
+    if (!cleanVideoId) {
+      toast.error("That doesn't look like a valid YouTube link or video ID.");
+      return;
+    }
 
     setSaving(true);
 
@@ -49,9 +72,11 @@ export default function CreateCoursePage() {
       category: form.category.trim(),
       description: form.description.trim() || null,
       sub_description: form.sub_description.trim() || null,
-      videoURL: form.videoURL.trim() || null, // Convert empty strings to null safely
+      video_id: form.video_id.trim() || null, // Convert empty strings to null safely
       // Convert duration string safely to a structured integer radix
       duration: form.duration ? parseInt(form.duration, 10) : 0,
+      price: Number(form.price) || 0, // Ensure price is a number
+      status: "Pending", // Forces submission sequence rule
     };
 
     try {
@@ -86,8 +111,8 @@ export default function CreateCoursePage() {
         Create New Course
       </h1>
       <p className="text-gray-500 text-sm mb-8">
-        Step 1 of 3 — fill in the details below, then add a video link and
-        publish when ready.
+        Fill in the details below — including your intro video — and it goes
+        straight to an Admin for review.
       </p>
 
       <form
@@ -154,23 +179,44 @@ export default function CreateCoursePage() {
           />
         </div>
 
-        {/* 5. Video link */}
+        {/* 5. Video */}
         <div>
           <label className="text-xs text-gray-500 block mb-1 uppercase font-medium">
-            Video Link (YouTube)
+            Introduction Video (YouTube) *
           </label>
           <input
             type="text"
-            name="videoURL"
-            placeholder="https://www.youtube.com/watch?v=..."
-            value={form.videoURL}
+            name="video_id"
+            required
+            placeholder="Paste a YouTube link (e.g. https://www.youtube.com/watch?v=...) or just the video ID"
+            value={form.video_id}
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-[#142175]"
           />
           <p className="text-xs text-gray-400 mt-1">
-            You can leave this blank and add it later — but you'll need it
-            before publishing.
+            Required — this is what the Admin reviews to approve your course.
+            Paste the full YouTube URL or just the video ID; we'll figure it
+            out.
           </p>
+
+          {form.video_id.trim() &&
+            (() => {
+              const previewId = extractYouTubeId(form.video_id);
+              return previewId ? (
+                <div className="mt-3 rounded-lg overflow-hidden border aspect-video bg-black">
+                  <img
+                    src={`https://img.youtube.com/vi/${previewId}/hqdefault.jpg`}
+                    alt="Video preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
+                  <i className="fa-solid fa-triangle-exclamation"></i>
+                  Doesn't look like a valid YouTube link or ID yet.
+                </p>
+              );
+            })()}
         </div>
 
         {/* 6. Duration */}
@@ -193,7 +239,7 @@ export default function CreateCoursePage() {
           disabled={saving}
           className="w-full bg-[#142175] hover:bg-[#0d185a] text-white py-3 rounded-lg font-medium transition disabled:opacity-50 cursor-pointer"
         >
-          {saving ? "Creating..." : "Save as Draft"}
+          {saving ? "Creating..." : "Submit for Admin Review"}
         </button>
       </form>
     </section>

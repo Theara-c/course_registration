@@ -42,8 +42,10 @@ router.post("/courses", createNewCourse);
 router.put("/courses/:id", editCourse);
 
 // PUBLISH / UNPUBLISH — separate actions from update, since this is a
-// status change with real consequences (visible to students or not)
+
 router.put("/courses/:id/publish", publishCourse);
+router.put("/courses/:id/publish-request", publishCourse);
+// UNPUBLISH — Changes status state from Active back into an Inactive/Hidden tier
 router.put("/courses/:id/unpublish", unpublishCourse);
 
 // DELETE — separate, deliberate, irreversible action

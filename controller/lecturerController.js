@@ -14,6 +14,7 @@ import {
 } from "../repo/courseRepository.js";
 import { pool } from "../database/db.js";
 import bcrypt from "bcryptjs";
+import { extractYouTubeId } from "../utils/youtube.js";
 
 // GET /api/lecturer/profile
 export async function getProfile(req, res) {
@@ -160,8 +161,7 @@ export async function getCourseDetail(req, res) {
 }
 
 // POST /api/lecturer/courses
-// Step 1 of "create course" action — title, description, category required.
-// videoURL/duration can be added/edited afterwards.
+// Diagram Step: Form validation -> [form valid] -> Notify Admin & Save as 'Pending'
 export async function createNewCourse(req, res) {
   try {
     const {
@@ -169,8 +169,9 @@ export async function createNewCourse(req, res) {
       description,
       sub_description,
       category,
-      videoURL,
+      video_id, // FIX: the form sends `video_id`, not `videoURL`
       duration,
+      price,
     } = req.body;
 
     if (!title || !title.trim()) {
@@ -179,21 +180,50 @@ export async function createNewCourse(req, res) {
     if (!category || !category.trim()) {
       return res.status(400).json({ error: "Category is required" });
     }
+    if (!description || !description.trim()) {
+      return res.status(400).json({ error: "Course description is required" });
+    }
+
+    // Accept a pasted YouTube URL or a bare ID either way, and store
+    // only the clean 11-character ID so playback/embeds work reliably.
+    const cleanVideoId = extractYouTubeId(video_id);
+    if (!video_id || !video_id.trim()) {
+      return res.status(400).json({
+        error:
+          "An introduction video is required — the Admin needs something to review before your course can go live.",
+      });
+    }
+    if (!cleanVideoId) {
+      return res.status(400).json({
+        error:
+          "That doesn't look like a valid YouTube link or video ID. Please double-check it.",
+      });
+    }
 
     const courseId = await createCourse(req.user.user_id, {
       title,
       description,
       sub_description,
       category,
-      videoURL,
+      video_id: cleanVideoId,
       duration,
+      price,
     });
 
-    return res
-      .status(201)
-      .json({ message: "Course created", course_id: courseId });
+    return res.status(201).json({
+      message:
+        "Form validated successfully. Publish notification sent to Admin.",
+      course_id: courseId,
+      status: "Pending",
+    });
   } catch (error) {
     console.error(error);
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        error:
+          "That video is already used by another course. Please use a different video, or update the existing course instead.",
+      });
+    }
     return res.status(500).json({ error: "Unable to create course" });
   }
 }
@@ -212,10 +242,27 @@ export async function editCourse(req, res) {
       return res.status(403).json({ error: "This is not your course" });
     }
 
-    await updateCourse(courseId, req.user.user_id, req.body);
+    const fields = { ...req.body };
+    if (fields.video_id !== undefined) {
+      const cleanVideoId = extractYouTubeId(fields.video_id);
+      if (fields.video_id && !cleanVideoId) {
+        return res.status(400).json({
+          error:
+            "That doesn't look like a valid YouTube link or video ID. Please double-check it.",
+        });
+      }
+      fields.video_id = cleanVideoId;
+    }
+
+    await updateCourse(courseId, req.user.user_id, fields);
     return res.json({ message: "Course updated" });
   } catch (error) {
     console.error(error);
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        error: "That video is already used by another course.",
+      });
+    }
     return res.status(500).json({ error: "Unable to update course" });
   }
 }
@@ -230,17 +277,26 @@ export async function publishCourse(req, res) {
     if (course.user_id !== req.user.user_id) {
       return res.status(403).json({ error: "This is not your course" });
     }
-    if (!course.videoURL) {
-      return res
-        .status(400)
-        .json({ error: "Add a video link before publishing" });
+
+    // Make sure there's actually something for the Admin to review —
+    // otherwise the review queue shows an empty video, same issue this
+    // fixes for existing courses.
+    if (!course.video_id) {
+      return res.status(400).json({
+        error: "Add an introduction video before submitting for review.",
+      });
     }
 
-    await updateCourseStatus(courseId, req.user.user_id, "Active");
-    return res.json({ message: "Course published — students can now see it" });
+    // Set or enforce status to 'Pending' so the Admin can evaluate and confirm
+    await updateCourseStatus(courseId, req.user.user_id, "Pending");
+
+    return res.json({
+      message: "Publish request sent! Awaiting administrator verification.",
+      status: "Pending",
+    });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Unable to publish course" });
+    return res.status(500).json({ error: "Unable to submit publish request" });
   }
 }
 

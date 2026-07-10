@@ -7,8 +7,12 @@ import {
   listUsers,
   getUser,
   removeUser,
+  listPendingLecturers,
+  approveLecturer,
+  rejectLecturer,
   listCourses,
   updateCourseStatus,
+  handleCourseReview,
   removeCourse,
 } from "../controller/adminController.js";
 
@@ -20,8 +24,14 @@ router.get("/activity", getActivity);
 router.get("/users", listUsers);
 router.get("/users/:id", getUser);
 router.delete("/users/:id", removeUser);
+
+// Lecturer signup approval queue
+router.get("/lecturers/pending", listPendingLecturers);
+router.put("/lecturers/:id/approve", approveLecturer);
+router.put("/lecturers/:id/reject", rejectLecturer);
 router.get("/courses", listCourses);
 router.put("/courses/:id/status", updateCourseStatus);
+router.put("/courses/:id/review", handleCourseReview);
 router.delete("/courses/:id", removeCourse);
 
 export default router;

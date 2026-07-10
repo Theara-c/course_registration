@@ -26,35 +26,58 @@ export const getCourseById = async (courseId) => {
   return rows[0];
 };
 
-// 3. Create a new course
+// 3. Look up a category by name (case-insensitive); create it if it
+//    doesn't exist yet, so lecturers can type a free-text category.
+export const getOrCreateCategoryId = async (categoryName) => {
+  if (!categoryName || !categoryName.trim()) return null;
+  const name = categoryName.trim();
+
+  const [rows] = await pool.query(
+    `SELECT category_id FROM Category WHERE LOWER(category_name) = LOWER(?)`,
+    [name],
+  );
+  if (rows[0]) return rows[0].category_id;
+
+  const [result] = await pool.query(
+    `INSERT INTO Category (category_name, description) VALUES (?, ?)`,
+    [name, `Courses related to ${name.toLowerCase()}.`],
+  );
+  return result.insertId;
+};
+
+// 4. Create a new course
 export const createCourse = async (
   userId,
-  { title, description, sub_description, category, videoURL, duration },
+  { title, description, sub_description, category, video_id, duration, price },
 ) => {
+  const categoryId = await getOrCreateCategoryId(category);
+
   const [result] = await pool.query(
-    `INSERT INTO course (title, description, sub_description, category, videoURL, duration, status, user_id)
-     VALUES (?, ?, ?, ?, ?, ?, 'Inactive', ?)`,
+    `INSERT INTO course (title, description, sub_description, category_id, video_id, duration, price, status, user_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', ?)`,
     [
       title,
-      description,
-      sub_description,
-      category,
-      videoURL,
+      description || null,
+      sub_description || null,
+      categoryId,
+      video_id || null,
       duration || 0,
+      price !== undefined ? price : 0, //  0 is free
       userId,
     ],
   );
   return result.insertId;
 };
 
-// 4. Update any of the editable fields
+// 5. Update any of the editable fields
 export const updateCourse = async (courseId, userId, fields) => {
   const allowed = [
     "title",
     "description",
     "sub_description",
-    "category",
-    "videoURL",
+    "category_id",
+    "video_id",
+    "price",
     "duration",
   ];
   const sets = [];
@@ -75,7 +98,7 @@ export const updateCourse = async (courseId, userId, fields) => {
   );
 };
 
-// 5. Toggle Active / Inactive
+// 6. Toggle Active / Inactive
 export const updateCourseStatus = async (courseId, userId, status) => {
   await pool.query(
     `UPDATE course SET status = ? WHERE course_id = ? AND user_id = ?`,
@@ -83,7 +106,7 @@ export const updateCourseStatus = async (courseId, userId, status) => {
   );
 };
 
-// 6. Delete course record row
+// 7. Delete course record row
 export const deleteCourse = async (courseId, userId) => {
   await pool.query(`DELETE FROM course WHERE course_id = ? AND user_id = ?`, [
     courseId,
@@ -91,7 +114,7 @@ export const deleteCourse = async (courseId, userId) => {
   ]);
 };
 
-// 7. Students enrolled in one of the lecturer's courses
+// 8. Students enrolled in one of the lecturer's courses
 export const getEnrolledStudents = async (courseId) => {
   const [rows] = await pool.query(
     `SELECT e.*, u.full_name, u.email, u.phone_number
@@ -104,7 +127,7 @@ export const getEnrolledStudents = async (courseId) => {
   return rows;
 };
 
-// 8. Ratings/feedback left on this lecturer's course
+// 9. Ratings/feedback left on this lecturer's course
 export const getCourseRatings = async (courseId) => {
   const [rows] = await pool.query(
     `SELECT r.*, u.full_name
@@ -116,4 +139,11 @@ export const getCourseRatings = async (courseId) => {
     [courseId],
   );
   return rows;
+};
+// 10. Admin Review Status Update (Allows Admin validation without matching lecturer user_id)
+export const adminUpdateCourseStatus = async (courseId, status) => {
+  await pool.query(`UPDATE course SET status = ? WHERE course_id = ?`, [
+    status,
+    courseId,
+  ]);
 };
