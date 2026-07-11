@@ -67,18 +67,18 @@ export default function LecturerSettings() {
   return (
     <LecturerLayout activeTab="settings">
       <div className="max-w-2xl mx-auto px-8 py-10">
-        <h1 className="text-2xl font-bold text-[#142175] mb-1">Settings</h1>
-        <p className="text-gray-500 text-sm mb-8">
+        <h1 className="text-2xl font-bold text-[#F8FAFC] mb-1">Settings</h1>
+        <div className="text-[#94A3B8] text-sm mb-8">
           Manage your account security and preferences.
-        </p>
+        </div>
 
         {/* Password Change */}
-        <div className="bg-white rounded-xl border p-6 mb-6">
-          <h2 className="font-bold text-gray-800 mb-5">Change Password</h2>
+        <div className="bg-[#171B46] rounded-xl border border-[#6C63FF]/20 p-6 mb-6">
+          <h2 className="font-bold text-white mb-5">Change Password</h2>
           <form onSubmit={handleChangePassword} className="space-y-4">
             {/* Current Password */}
             <div>
-              <span className="text-xs font-medium text-gray-500 uppercase block mb-1">
+              <span className="text-xs font-medium text-slate-400 uppercase block mb-1">
                 Current Password
               </span>
               <div className="relative">
@@ -87,12 +87,12 @@ export default function LecturerSettings() {
                   value={passwords.current_password}
                   onChange={set("current_password")}
                   placeholder="••••••••"
-                  className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-2.5 text-sm outline-none focus:border-[#142175]"
+                  className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white rounded-lg pl-4 pr-12 py-2.5 text-sm outline-none focus:border-[#6C63FF] transition"
                 />
                 <button
                   type="button"
                   onClick={() => toggleVisibility("current_password")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 focus:outline-none"
                 >
                   <i
                     className={`fa-solid ${showPassword.current_password ? "fa-eye" : "fa-eye-slash"}`}
@@ -103,7 +103,7 @@ export default function LecturerSettings() {
 
             {/* New Password */}
             <div>
-              <span className="text-xs font-medium text-gray-500 uppercase block mb-1">
+              <span className="text-xs font-medium text-slate-400 uppercase block mb-1">
                 New Password
               </span>
               <div className="relative">
@@ -112,12 +112,12 @@ export default function LecturerSettings() {
                   value={passwords.new_password}
                   onChange={set("new_password")}
                   placeholder="••••••••"
-                  className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-2.5 text-sm outline-none focus:border-[#142175]"
+                  className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white rounded-lg pl-4 pr-12 py-2.5 text-sm outline-none focus:border-[#6C63FF] transition"
                 />
                 <button
                   type="button"
                   onClick={() => toggleVisibility("new_password")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 focus:outline-none"
                 >
                   <i
                     className={`fa-solid ${showPassword.new_password ? "fa-eye" : "fa-eye-slash"}`}
@@ -128,7 +128,7 @@ export default function LecturerSettings() {
 
             {/* Confirm New Password */}
             <div>
-              <span className="text-xs font-medium text-gray-500 uppercase block mb-1">
+              <span className="text-xs font-medium text-slate-400 uppercase block mb-1">
                 Confirm New Password
               </span>
               <div className="relative">
@@ -137,12 +137,12 @@ export default function LecturerSettings() {
                   value={passwords.confirm_password}
                   onChange={set("confirm_password")}
                   placeholder="••••••••"
-                  className="w-full border border-gray-300 rounded-lg pl-4 pr-12 py-2.5 text-sm outline-none focus:border-[#142175]"
+                  className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white rounded-lg pl-4 pr-12 py-2.5 text-sm outline-none focus:border-[#6C63FF] transition"
                 />
                 <button
                   type="button"
                   onClick={() => toggleVisibility("confirm_password")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 focus:outline-none"
                 >
                   <i
                     className={`fa-solid ${showPassword.confirm_password ? "fa-eye" : "fa-eye-slash"}`}
@@ -154,7 +154,7 @@ export default function LecturerSettings() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-[#142175] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#0d185a] transition disabled:opacity-60"
+              className="bg-[#6C63FF] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#5a52d9] transition disabled:opacity-60 shadow-lg shadow-[#6C63FF]/20"
             >
               {saving ? "Updating..." : "Update Password"}
             </button>
@@ -162,13 +162,13 @@ export default function LecturerSettings() {
         </div>
 
         {/* Account info */}
-        <div className="bg-white rounded-xl border p-6">
-          <h2 className="font-bold text-gray-800 mb-4">Account</h2>
-          <p className="text-sm text-gray-500 mb-4">
+        <div className="bg-[#171B46] rounded-xl border border-[#6C63FF]/20 p-6">
+          <h2 className="font-bold text-white mb-4">Account</h2>
+          <p className="text-sm text-slate-400 mb-4">
             Your account is managed by EduFlow. Contact an administrator if you
             need to change your email address or role.
           </p>
-          <div className="bg-gray-50 rounded-lg px-4 py-3 text-sm text-gray-600">
+          <div className="bg-[#0D1030] border border-[#6C63FF]/20 rounded-lg px-4 py-3 text-sm text-slate-300">
             <strong>Role:</strong> Lecturer
           </div>
         </div>

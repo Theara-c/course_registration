@@ -10,20 +10,20 @@ const ROLES = [
     title: "Student",
     desc: "Browse & enroll in courses",
     icon: "fa-user-graduate",
-    ring: "ring-blue-500",
-    bg: "bg-blue-50",
-    text: "text-blue-600",
-    grad: "from-blue-500 to-indigo-600",
+    ring: "ring-sky-500",
+    bg: "bg-sky-500/10",
+    text: "text-sky-400",
+    grad: "from-sky-500 to-[#6C63FF]",
   },
   {
     value: "Lecturer",
     title: "Lecturer",
     desc: "Create & teach courses",
     icon: "fa-chalkboard-teacher",
-    ring: "ring-purple-500",
-    bg: "bg-purple-50",
-    text: "text-purple-600",
-    grad: "from-purple-500 to-fuchsia-600",
+    ring: "ring-[#6C63FF]",
+    bg: "bg-[#6C63FF]/10",
+    text: "text-[#6C63FF]",
+    grad: "from-[#6C63FF] to-fuchsia-600",
   },
 ];
 
@@ -66,7 +66,7 @@ function Signup() {
     return score;
   })();
   const strengthMeta = [
-    { label: "Too short", color: "bg-gray-200" },
+    { label: "Too short", color: "bg-slate-700" },
     { label: "Weak", color: "bg-red-400" },
     { label: "Okay", color: "bg-amber-400" },
     { label: "Good", color: "bg-lime-500" },
@@ -140,7 +140,7 @@ function Signup() {
   const isLecturer = formData.user_role === "Lecturer";
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen flex bg-[#080B24]">
       {/* Left Image / Brand panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
@@ -165,23 +165,23 @@ function Signup() {
 
       {/* Right Form */}
       <div className="w-full lg:w-1/2 flex justify-center items-center px-4 py-10">
-        <div className="w-full max-w-lg bg-white/80 backdrop-blur rounded-3xl shadow-xl border border-white p-8 sm:p-10 my-8">
+        <div className="w-full max-w-lg bg-[#171B46] backdrop-blur rounded-3xl shadow-xl border border-[#6C63FF]/20 p-8 sm:p-10 my-8">
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
+            <div className="w-11 h-11 rounded-2xl bg-[#6C63FF] flex items-center justify-center shadow-md">
               <i className="fa-solid fa-user-plus text-white"></i>
             </div>
-            <h2 className="font-extrabold text-[#142175] text-2xl sm:text-3xl">
+            <h2 className="font-extrabold text-[#F8FAFC] text-2xl sm:text-3xl">
               Create your account
             </h2>
           </div>
-          <p className="text-gray-500 text-sm mb-6">
+          <p className="text-[#94A3B8] text-sm mb-6">
             Pick a role, fill in your details, and you're on your way.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Role picker — colorful cards instead of a boring dropdown */}
             <div>
-              <label className="text-xs font-bold text-gray-500 block mb-2 tracking-wide">
+              <label className="text-xs font-bold text-slate-400 block mb-2 tracking-wide">
                 I WANT TO JOIN AS
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -195,7 +195,7 @@ function Signup() {
                       className={`relative text-left p-4 rounded-2xl border-2 transition-all cursor-pointer overflow-hidden group ${
                         active
                           ? `border-transparent ${role.ring} ring-2 shadow-lg`
-                          : "border-gray-200 hover:border-gray-300"
+                          : "border-[#6C63FF]/20 hover:border-[#6C63FF]/40"
                       }`}
                     >
                       <div
@@ -210,12 +210,12 @@ function Signup() {
                           ></i>
                         </div>
                         <p
-                          className={`font-bold text-sm ${active ? "text-white" : "text-gray-800"}`}
+                          className={`font-bold text-sm ${active ? "text-white" : "text-slate-200"}`}
                         >
                           {role.title}
                         </p>
                         <p
-                          className={`text-xs mt-0.5 ${active ? "text-white/80" : "text-gray-500"}`}
+                          className={`text-xs mt-0.5 ${active ? "text-white/80" : "text-slate-400"}`}
                         >
                           {role.desc}
                         </p>
@@ -229,7 +229,7 @@ function Signup() {
               </div>
 
               {isLecturer && (
-                <div className="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl p-3">
+                <div className="mt-3 flex items-start gap-2 bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B] text-xs rounded-xl p-3">
                   <i className="fa-solid fa-shield-halved mt-0.5"></i>
                   <p>
                     <strong>Heads up:</strong> Lecturer accounts are reviewed by
@@ -243,11 +243,11 @@ function Signup() {
             {/* Full Name + DOB */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-gray-500 block mb-1">
+                <label className="text-xs font-semibold text-slate-400 block mb-1">
                   FULL NAME
                 </label>
                 <div className="relative">
-                  <i className="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
                   <input
                     type="text"
                     name="fullName"
@@ -255,23 +255,23 @@ function Signup() {
                     value={formData.fullName}
                     onChange={handleChange}
                     required
-                    className="w-full border border-gray-200 rounded-xl pl-9 pr-3 py-2.5 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition"
+                    className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-xl pl-9 pr-3 py-2.5 outline-none focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/10 transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-500 block mb-1">
+                <label className="text-xs font-semibold text-slate-400 block mb-1">
                   DATE OF BIRTH
                 </label>
                 <div className="relative">
-                  <i className="fa-solid fa-cake-candles absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fa-solid fa-cake-candles absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
                   <input
                     type="date"
                     name="dob"
                     value={formData.dob}
                     onChange={handleChange}
-                    className="w-full border border-gray-200 rounded-xl pl-9 pr-3 py-2.5 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition"
+                    className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-xl pl-9 pr-3 py-2.5 outline-none focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/10 transition"
                   />
                 </div>
               </div>
@@ -279,11 +279,11 @@ function Signup() {
 
             {/* Email */}
             <div>
-              <label className="text-xs font-semibold text-gray-500 block mb-1">
+              <label className="text-xs font-semibold text-slate-400 block mb-1">
                 EMAIL ADDRESS
               </label>
               <div className="relative">
-                <i className="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <i className="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
                 <input
                   type="email"
                   name="email"
@@ -291,7 +291,7 @@ function Signup() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full border border-gray-200 rounded-xl pl-9 pr-3 py-2.5 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition"
+                  className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-xl pl-9 pr-3 py-2.5 outline-none focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/10 transition"
                 />
               </div>
             </div>
@@ -299,26 +299,26 @@ function Signup() {
             {/* Passwords */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-gray-500 block mb-1">
+                <label className="text-xs font-semibold text-slate-400 block mb-1">
                   PASSWORD
                 </label>
                 <div className="relative">
-                  <i className="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    className="w-full border border-gray-200 rounded-xl pl-9 pr-9 py-2.5 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition"
+                    className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-xl pl-9 pr-9 py-2.5 outline-none focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/10 transition"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                   >
                     <i
-                      className={`fa-solid ${showPassword ? "fa-eye" : "fa-eye-slash"} text-sm`}
+                      className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} text-sm`}
                     ></i>
                   </button>
                 </div>
@@ -328,11 +328,11 @@ function Signup() {
                       {[0, 1, 2, 3].map((i) => (
                         <div
                           key={i}
-                          className={`flex-1 rounded-full ${i < passwordScore ? strengthMeta.color : "bg-gray-200"}`}
+                          className={`flex-1 rounded-full ${i < passwordScore ? strengthMeta.color : "bg-[#0D1030]"}`}
                         />
                       ))}
                     </div>
-                    <span className="text-[11px] text-gray-500">
+                    <span className="text-[11px] text-slate-400">
                       {strengthMeta.label}
                     </span>
                   </div>
@@ -340,26 +340,26 @@ function Signup() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-500 block mb-1">
+                <label className="text-xs font-semibold text-slate-400 block mb-1">
                   CONFIRM PASSWORD
                 </label>
                 <div className="relative">
-                  <i className="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
                   <input
                     type={showConfirm ? "text" : "password"}
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
-                    className="w-full border border-gray-200 rounded-xl pl-9 pr-9 py-2.5 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition"
+                    className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-xl pl-9 pr-9 py-2.5 outline-none focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/10 transition"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirm((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                   >
                     <i
-                      className={`fa-solid ${showConfirm ? "fa-eye" : "fa-eye-slash"} text-sm`}
+                      className={`fa-solid ${showConfirm ? "fa-eye-slash" : "fa-eye"} text-sm`}
                     ></i>
                   </button>
                 </div>
@@ -381,31 +381,31 @@ function Signup() {
             {/* Phone & Gender */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-gray-500 block mb-1">
+                <label className="text-xs font-semibold text-slate-400 block mb-1">
                   PHONE NUMBER
                 </label>
                 <div className="relative">
-                  <i className="fa-solid fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fa-solid fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
                   <input
                     type="tel"
                     name="phone"
                     placeholder="(+855) 000-000-000"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full border border-gray-200 rounded-xl pl-9 pr-3 py-2.5 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition"
+                    className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-xl pl-9 pr-3 py-2.5 outline-none focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/10 transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-500 block mb-1">
+                <label className="text-xs font-semibold text-slate-400 block mb-1">
                   GENDER
                 </label>
                 <select
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition"
+                  className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white rounded-xl px-3 py-2.5 outline-none focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/10 transition"
                 >
                   <option value="">Select Option</option>
                   <option value="male">Male</option>
@@ -416,7 +416,7 @@ function Signup() {
 
             {/* Error Banner */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 p-3 text-sm font-medium rounded-xl flex items-center gap-2">
+              <div className="bg-rose-950/40 border border-rose-900/40 text-rose-400 p-3 text-sm font-medium rounded-xl flex items-center gap-2">
                 <i className="fa-solid fa-circle-exclamation"></i> {error}
               </div>
             )}
@@ -425,10 +425,10 @@ function Signup() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full text-white font-semibold py-3 rounded-xl transition cursor-pointer shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed bg-gradient-to-r ${
+              className={`w-full text-white font-semibold py-3 rounded-xl transition cursor-pointer shadow-lg shadow-[#6C63FF]/20 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed bg-gradient-to-r ${
                 isLecturer
                   ? "from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700"
-                  : "from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
+                  : "from-[#6C63FF] to-[#7C6FFF] hover:from-[#5a52d9] hover:to-[#6C63FF]"
               }`}
             >
               {loading ? (
@@ -449,11 +449,11 @@ function Signup() {
               )}
             </button>
 
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-slate-400">
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-indigo-600 font-semibold hover:underline"
+                className="text-[#6C63FF] font-semibold hover:underline"
               >
                 Sign In
               </Link>

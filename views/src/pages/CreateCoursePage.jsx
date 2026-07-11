@@ -99,149 +99,151 @@ export default function CreateCoursePage() {
   };
 
   return (
-    <section className="max-w-2xl mx-auto px-6 py-10">
-      <Link
-        to={`/lecturer/${user.user_id}/dashboard`}
-        className="text-sm text-gray-500 hover:text-[#142175] mb-6 inline-flex items-center gap-1"
-      >
-        ← Back to My Courses
-      </Link>
-
-      <h1 className="text-2xl font-bold text-[#142175] mb-1">
-        Create New Course
-      </h1>
-      <p className="text-gray-500 text-sm mb-8">
-        Fill in the details below — including your intro video — and it goes
-        straight to an Admin for review.
-      </p>
-
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-sm border p-6 space-y-5"
-      >
-        {/* 1. Title */}
-        <div>
-          <label className="text-xs text-gray-500 block mb-1 uppercase font-medium">
-            Course Title *
-          </label>
-          <input
-            type="text"
-            name="title"
-            placeholder="e.g. Advanced React Patterns"
-            value={form.title}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-[#142175]"
-          />
-        </div>
-
-        {/* 2. Category */}
-        <div>
-          <label className="text-xs text-gray-500 block mb-1 uppercase font-medium">
-            Category *
-          </label>
-          <input
-            type="text"
-            name="category"
-            placeholder="e.g. Web Development"
-            value={form.category}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-[#142175]"
-          />
-        </div>
-
-        {/* 3. Short summary */}
-        <div>
-          <label className="text-xs text-gray-500 block mb-1 uppercase font-medium">
-            Short Summary
-          </label>
-          <input
-            type="text"
-            name="sub_description"
-            placeholder="One sentence shown on the course card"
-            value={form.sub_description}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-[#142175]"
-          />
-        </div>
-
-        {/* 4. Full description */}
-        <div>
-          <label className="text-xs text-gray-500 block mb-1 uppercase font-medium">
-            Full Description
-          </label>
-          <textarea
-            name="description"
-            rows={4}
-            placeholder="What will students learn in this course?"
-            value={form.description}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-[#142175]"
-          />
-        </div>
-
-        {/* 5. Video */}
-        <div>
-          <label className="text-xs text-gray-500 block mb-1 uppercase font-medium">
-            Introduction Video (YouTube) *
-          </label>
-          <input
-            type="text"
-            name="video_id"
-            required
-            placeholder="Paste a YouTube link (e.g. https://www.youtube.com/watch?v=...) or just the video ID"
-            value={form.video_id}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-[#142175]"
-          />
-          <p className="text-xs text-gray-400 mt-1">
-            Required — this is what the Admin reviews to approve your course.
-            Paste the full YouTube URL or just the video ID; we'll figure it
-            out.
-          </p>
-
-          {form.video_id.trim() &&
-            (() => {
-              const previewId = extractYouTubeId(form.video_id);
-              return previewId ? (
-                <div className="mt-3 rounded-lg overflow-hidden border aspect-video bg-black">
-                  <img
-                    src={`https://img.youtube.com/vi/${previewId}/hqdefault.jpg`}
-                    alt="Video preview"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
-                  <i className="fa-solid fa-triangle-exclamation"></i>
-                  Doesn't look like a valid YouTube link or ID yet.
-                </p>
-              );
-            })()}
-        </div>
-
-        {/* 6. Duration */}
-        <div>
-          <label className="text-xs text-gray-500 block mb-1 uppercase font-medium">
-            Duration (minutes)
-          </label>
-          <input
-            type="number"
-            name="duration"
-            placeholder="e.g. 180"
-            value={form.duration}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-[#142175]"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full bg-[#142175] hover:bg-[#0d185a] text-white py-3 rounded-lg font-medium transition disabled:opacity-50 cursor-pointer"
+    <div className="min-h-screen bg-[#080B24]">
+      <section className="max-w-2xl mx-auto px-6 py-10">
+        <Link
+          to={`/lecturer/${user.user_id}/dashboard`}
+          className="text-sm text-slate-400 hover:text-[#6C63FF] mb-6 inline-flex items-center gap-1"
         >
-          {saving ? "Creating..." : "Submit for Admin Review"}
-        </button>
-      </form>
-    </section>
+          ← Back to My Courses
+        </Link>
+
+        <h1 className="text-2xl font-bold text-[#F8FAFC] mb-1">
+          Create New Course
+        </h1>
+        <p className="text-[#94A3B8] text-sm mb-8">
+          Fill in the details below — including your intro video — and it goes
+          straight to an Admin for review.
+        </p>
+
+        <form
+          onSubmit={handleSubmit}
+          className="bg-[#171B46] rounded-xl shadow-sm border border-[#6C63FF]/20 p-6 space-y-5"
+        >
+          {/* 1. Title */}
+          <div>
+            <label className="text-xs text-slate-400 block mb-1 uppercase font-medium">
+              Course Title *
+            </label>
+            <input
+              type="text"
+              name="title"
+              placeholder="e.g. Advanced React Patterns"
+              value={form.title}
+              onChange={handleChange}
+              className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-lg px-4 py-2.5 outline-none focus:border-[#6C63FF] transition"
+            />
+          </div>
+
+          {/* 2. Category */}
+          <div>
+            <label className="text-xs text-slate-400 block mb-1 uppercase font-medium">
+              Category *
+            </label>
+            <input
+              type="text"
+              name="category"
+              placeholder="e.g. Web Development"
+              value={form.category}
+              onChange={handleChange}
+              className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-lg px-4 py-2.5 outline-none focus:border-[#6C63FF] transition"
+            />
+          </div>
+
+          {/* 3. Short summary */}
+          <div>
+            <label className="text-xs text-slate-400 block mb-1 uppercase font-medium">
+              Short Summary
+            </label>
+            <input
+              type="text"
+              name="sub_description"
+              placeholder="One sentence shown on the course card"
+              value={form.sub_description}
+              onChange={handleChange}
+              className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-lg px-4 py-2.5 outline-none focus:border-[#6C63FF] transition"
+            />
+          </div>
+
+          {/* 4. Full description */}
+          <div>
+            <label className="text-xs text-slate-400 block mb-1 uppercase font-medium">
+              Full Description
+            </label>
+            <textarea
+              name="description"
+              rows={4}
+              placeholder="What will students learn in this course?"
+              value={form.description}
+              onChange={handleChange}
+              className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-lg px-4 py-2.5 outline-none focus:border-[#6C63FF] transition"
+            />
+          </div>
+
+          {/* 5. Video */}
+          <div>
+            <label className="text-xs text-slate-400 block mb-1 uppercase font-medium">
+              Introduction Video (YouTube) *
+            </label>
+            <input
+              type="text"
+              name="video_id"
+              required
+              placeholder="Paste a YouTube link (e.g. https://www.youtube.com/watch?v=...) or just the video ID"
+              value={form.video_id}
+              onChange={handleChange}
+              className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-lg px-4 py-2.5 outline-none focus:border-[#6C63FF] transition"
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              Required — this is what the Admin reviews to approve your course.
+              Paste the full YouTube URL or just the video ID; we'll figure it
+              out.
+            </p>
+
+            {form.video_id.trim() &&
+              (() => {
+                const previewId = extractYouTubeId(form.video_id);
+                return previewId ? (
+                  <div className="mt-3 rounded-lg overflow-hidden border border-[#6C63FF]/20 aspect-video bg-black">
+                    <img
+                      src={`https://img.youtube.com/vi/${previewId}/hqdefault.jpg`}
+                      alt="Video preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-xs text-rose-400 mt-2 flex items-center gap-1">
+                    <i className="fa-solid fa-triangle-exclamation"></i>
+                    Doesn't look like a valid YouTube link or ID yet.
+                  </p>
+                );
+              })()}
+          </div>
+
+          {/* 6. Duration */}
+          <div>
+            <label className="text-xs text-slate-400 block mb-1 uppercase font-medium">
+              Duration (minutes)
+            </label>
+            <input
+              type="number"
+              name="duration"
+              placeholder="e.g. 180"
+              value={form.duration}
+              onChange={handleChange}
+              className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-lg px-4 py-2.5 outline-none focus:border-[#6C63FF] transition"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full bg-[#6C63FF] hover:bg-[#5a52d9] text-white py-3 rounded-lg font-medium transition disabled:opacity-50 cursor-pointer shadow-lg shadow-[#6C63FF]/20"
+          >
+            {saving ? "Creating..." : "Submit for Admin Review"}
+          </button>
+        </form>
+      </section>
+    </div>
   );
 }
