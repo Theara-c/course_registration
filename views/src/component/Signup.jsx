@@ -1,6 +1,6 @@
 import { useState } from "react";
 import registerImage from "../assets/hero.jpg";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -29,6 +29,11 @@ const ROLES = [
 
 function Signup() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const preselectedRole = ROLES.some((r) => r.value === location.state?.role)
+    ? location.state.role
+    : "Student";
+
   const [formData, setFormData] = useState({
     fullName: "",
     dob: "",
@@ -37,7 +42,7 @@ function Signup() {
     confirmPassword: "",
     phone: "",
     gender: "",
-    user_role: "Student",
+    user_role: preselectedRole,
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -318,7 +323,7 @@ function Signup() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                   >
                     <i
-                      className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"} text-sm`}
+                      className={`fa-solid ${showPassword ? "fa-eye" : "fa-eye-slash"} text-sm`}
                     ></i>
                   </button>
                 </div>
@@ -359,7 +364,7 @@ function Signup() {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                   >
                     <i
-                      className={`fa-solid ${showConfirm ? "fa-eye-slash" : "fa-eye"} text-sm`}
+                      className={`fa-solid ${showConfirm ? "fa-eye" : "fa-eye-slash"} text-sm`}
                     ></i>
                   </button>
                 </div>

@@ -3,14 +3,15 @@ import { pool } from "../database/db.js";
 
 // All active courses students can browse (status = Active only)
 const getAllActiveCourses = async (search = "") => {
-  let sql = `SELECT c.*, u.full_name AS instructor_name,
+  let sql = `SELECT c.*, cat.category_name AS category, u.full_name AS instructor_name,
                (SELECT COUNT(*) FROM enrollment e WHERE e.course_id = c.course_id) AS enrolled_count
              FROM course c
+             LEFT JOIN Category cat ON c.category_id = cat.category_id
              JOIN users u ON c.user_id = u.user_id
              WHERE c.status = 'Active'`;
   const params = [];
   if (search) {
-    sql += " AND (c.title LIKE ? OR c.category LIKE ?)";
+    sql += " AND (c.title LIKE ? OR cat.category_name LIKE ?)";
     params.push(`%${search}%`, `%${search}%`);
   }
   sql += " ORDER BY c.created_at DESC";
@@ -21,8 +22,9 @@ const getAllActiveCourses = async (search = "") => {
 // Single course detail for course detail page
 const getCourseDetail = async (courseId) => {
   const [rows] = await pool.query(
-    `SELECT c.*, u.full_name AS instructor_name, u.specialization
+    `SELECT c.*, cat.category_name AS category, u.full_name AS instructor_name, u.specialization
      FROM course c
+     LEFT JOIN Category cat ON c.category_id = cat.category_id
      JOIN users u ON c.user_id = u.user_id
      WHERE c.course_id = ?`,
     [courseId],
@@ -33,10 +35,11 @@ const getCourseDetail = async (courseId) => {
 // All courses a student is enrolled in (for dashboard)
 const getStudentEnrollments = async (studentId) => {
   const [rows] = await pool.query(
-    `SELECT e.*, c.title, c.description, c.category, c.videoURL,
-            c.duration, u.full_name AS instructor_name
+    `SELECT e.*, c.title, c.description, cat.category_name AS category, c.video_id,
+            c.duration, c.price, u.full_name AS instructor_name
      FROM enrollment e
      JOIN course c ON e.course_id = c.course_id
+     LEFT JOIN Category cat ON c.category_id = cat.category_id
      JOIN users u ON c.user_id = u.user_id
      WHERE e.user_id = ?
      ORDER BY e.enrolled_at DESC`,

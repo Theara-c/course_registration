@@ -4,9 +4,10 @@ import { pool } from "../database/db.js";
 // 1. All courses created by one lecturer (their own management list)
 export const getCoursesByUser = async (userId) => {
   const [rows] = await pool.query(
-    `SELECT c.*,
+    `SELECT c.*, cat.category_name AS category,
         (SELECT COUNT(*) FROM enrollment e WHERE e.course_id = c.course_id AND e.status != 'Cancelled') AS enrolled_count
      FROM course c
+     LEFT JOIN Category cat ON c.category_id = cat.category_id
      WHERE c.user_id = ?
      ORDER BY c.created_at DESC`,
     [userId],
@@ -17,8 +18,9 @@ export const getCoursesByUser = async (userId) => {
 // 2. One course, with instructor's name joined in
 export const getCourseById = async (courseId) => {
   const [rows] = await pool.query(
-    `SELECT c.*, u.full_name AS instructor_name
+    `SELECT c.*, cat.category_name AS category, u.full_name AS instructor_name
      FROM course c
+     LEFT JOIN Category cat ON c.category_id = cat.category_id
      JOIN users u ON c.user_id = u.user_id
      WHERE c.course_id = ?`,
     [courseId],

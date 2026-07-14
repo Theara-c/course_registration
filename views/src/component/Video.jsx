@@ -96,7 +96,7 @@ function Video() {
     return <div className="text-center py-20 text-gray-500">Loading...</div>;
   if (!course) return null;
 
-  const videoId = extractYouTubeId(course.videoURL);
+  const videoId = extractYouTubeId(course.video_id);
 
   return (
     <div className="h-100%">

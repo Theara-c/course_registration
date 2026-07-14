@@ -62,9 +62,10 @@ const logActivity = async (userId, action, targetType, targetId) => {
 
 // ── Courses ──
 const getAllCourses = async ({ status = "", search = "" } = {}) => {
-  let sql = `SELECT c.*, u.full_name AS instructor_name,
+  let sql = `SELECT c.*, cat.category_name AS category, u.full_name AS instructor_name,
                (SELECT COUNT(*) FROM enrollment e WHERE e.course_id = c.course_id) AS enrolled_count
              FROM course c
+             LEFT JOIN Category cat ON c.category_id = cat.category_id
              JOIN users u ON c.user_id = u.user_id
              WHERE 1=1`;
   const params = [];

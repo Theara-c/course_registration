@@ -63,6 +63,10 @@ export default function CreateCoursePage() {
       toast.error("That doesn't look like a valid YouTube link or video ID.");
       return;
     }
+    if (Number(form.price) > 0 && Number(form.price) < 1) {
+      toast.error("Premium price must be at least $1.");
+      return;
+    }
 
     setSaving(true);
 
@@ -111,10 +115,10 @@ export default function CreateCoursePage() {
         <h1 className="text-2xl font-bold text-[#F8FAFC] mb-1">
           Create New Course
         </h1>
-        <p className="text-[#94A3B8] text-sm mb-8">
+        <div className="text-[#94A3B8] text-sm mb-8">
           Fill in the details below — including your intro video — and it goes
           straight to an Admin for review.
-        </p>
+        </div>
 
         <form
           onSubmit={handleSubmit}
@@ -233,6 +237,87 @@ export default function CreateCoursePage() {
               onChange={handleChange}
               className="w-full border border-[#6C63FF]/20 bg-[#0D1030] text-white placeholder-slate-500 rounded-lg px-4 py-2.5 outline-none focus:border-[#6C63FF] transition"
             />
+          </div>
+
+          {/* 7. Pricing — Free or Premium */}
+          <div>
+            <label className="text-xs text-slate-400 block mb-2 uppercase font-medium">
+              Pricing
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, price: 0 })}
+                className={`p-4 rounded-xl border-2 text-left transition ${
+                  Number(form.price) === 0
+                    ? "border-[#10B981] bg-[#10B981]/10"
+                    : "border-[#6C63FF]/20 hover:border-[#6C63FF]/40"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <i
+                    className={`fa-solid fa-gift ${Number(form.price) === 0 ? "text-[#10B981]" : "text-slate-500"}`}
+                  ></i>
+                  <span
+                    className={`font-bold text-sm ${Number(form.price) === 0 ? "text-[#10B981]" : "text-slate-200"}`}
+                  >
+                    Free
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Open to every student, no charge
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setForm({ ...form, price: form.price > 0 ? form.price : 19 })
+                }
+                className={`p-4 rounded-xl border-2 text-left transition ${
+                  Number(form.price) > 0
+                    ? "border-[#F59E0B] bg-[#F59E0B]/10"
+                    : "border-[#6C63FF]/20 hover:border-[#6C63FF]/40"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <i
+                    className={`fa-solid fa-crown ${Number(form.price) > 0 ? "text-[#F59E0B]" : "text-slate-500"}`}
+                  ></i>
+                  <span
+                    className={`font-bold text-sm ${Number(form.price) > 0 ? "text-[#F59E0B]" : "text-slate-200"}`}
+                  >
+                    Premium
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Students pay to enroll
+                </p>
+              </button>
+            </div>
+
+            {Number(form.price) > 0 && (
+              <div className="mt-3">
+                <label className="text-xs text-slate-400 block mb-1 uppercase font-medium">
+                  Price (USD) *
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    name="price"
+                    min="1"
+                    step="1"
+                    placeholder="19"
+                    value={form.price}
+                    onChange={handleChange}
+                    className="w-full border border-[#F59E0B]/30 bg-[#0D1030] text-white placeholder-slate-500 rounded-lg pl-8 pr-4 py-2.5 outline-none focus:border-[#F59E0B] transition"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <button

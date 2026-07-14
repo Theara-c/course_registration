@@ -11,6 +11,9 @@ import Login from "./component/Login.jsx";
 import Signup from "./component/Signup.jsx";
 import CourseDetail from "./component/CourseDetail.jsx";
 import Video from "./component/Video.jsx";
+import Privacy from "./component/Privacy.jsx";
+import Terms from "./component/Terms.jsx";
+import Support from "./component/Support.jsx";
 // import pages
 import Layout from "./component/Layout.jsx";
 import StudentDashboard from "./pages/StudentDashboard.jsx";
@@ -22,8 +25,6 @@ import LecturerProfile from "./pages/LecturerProfile.jsx";
 import LecturerSettings from "./pages/LecturerSettings.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 
-import Test from "./pages/Test.jsx";
-import Tes from "./pages/Tes.jsx";
 function App() {
   return (
     <>
@@ -39,6 +40,9 @@ function App() {
             <Route path="/home" element={<Home />} />
             <Route path="/courses" element={<Course />} />
             <Route path="/about" element={<AboutUs />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/support" element={<Support />} />
 
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -74,8 +78,6 @@ function App() {
             {/* Admin */}
             <Route path="/admin/:id/dashboard" element={<AdminDashboard />} />
 
-            <Route path="/test" element={<Test />} />
-            <Route path="/tes/:id" element={<Tes />} />
             <Route
               path="*"
               element={

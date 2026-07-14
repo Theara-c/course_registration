@@ -35,7 +35,13 @@ function Login() {
       toast.success(`Welcome back, ${user.full_name}!`);
 
       const role = user.user_role;
-      if (role === "Administrator") {
+      const redirectTo = location.state?.redirectTo;
+
+      // Student-only destinations like "/courses" or "/signup" (e.g. from
+      // the Enroll Now / Become an Instructor buttons on the homepage)
+      if (redirectTo && role === "Student") {
+        navigate(redirectTo);
+      } else if (role === "Administrator") {
         navigate(`/admin/${user.user_id}/dashboard`);
       } else if (role === "Lecturer") {
         navigate(`/lecturer/${user.user_id}/dashboard`);
@@ -141,7 +147,7 @@ function Login() {
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
               >
                 <i
-                  className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
+                  className={`fa-solid ${showPassword ? "fa-eye" : "fa-eye-slash"} text-sm`}
                 ></i>
               </button>
             </div>

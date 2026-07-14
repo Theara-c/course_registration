@@ -76,6 +76,18 @@ export async function enroll(req, res) {
         .json({ error: "This course is not available for enrollment" });
     }
 
+    // Paid courses require the student to complete checkout first —
+    // the frontend sends payment_confirmed only after the checkout
+    // step succeeds.
+    const price = Number(course.price) || 0;
+    if (price > 0 && !req.body?.payment_confirmed) {
+      return res.status(402).json({
+        error: "Payment is required to enroll in this course",
+        price,
+        requiresPayment: true,
+      });
+    }
+
     const enrollmentId = await enrollStudent(studentId, courseId);
 
     // Log this action

@@ -25,37 +25,62 @@ const courses = [
   },
 ];
 
-       
-
 const chooseUs = [
-    {
-        icon: '📚',
-        title: 'Flexible Learning',
-        content: 'Access courses anytime, anywhere at your own pace.'
+  {
+    icon: "📚",
+    title: "Flexible Learning",
+    content: "Access courses anytime, anywhere at your own pace.",
+  },
+  {
+    icon: "🚀",
+    title: "Progress Tracking",
+    content: "Stay motivated with learning analytics and milestones.",
+  },
+  {
+    icon: "🌍",
+    title: "Global Certification",
+    content: "Earn certificates recognized worldwide.",
+  },
+];
 
-    },
-    {
-        icon: '🚀',
-        title: 'Progress Tracking',
-        content: 'Stay motivated with learning analytics and milestones.'
-    },
-    {
-        icon: '🌍',
-        title: 'Global Certification',
-        content: 'Earn certificates recognized worldwide.'
-    }
-]
-
+function getStoredUser() {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
+}
 
 export default function LandingPage() {
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  function handleEnrollNow() {
+    // Browsing courses doesn't require login — the actual Enroll button on
+    // a course's detail page already checks login before enrolling.
+    navigate("/courses");
+  }
+
+  function handleBecomeInstructor() {
+    const user = getStoredUser();
+    if (!user) {
+      navigate("/login", { state: { redirectTo: "/signup" } });
+      return;
+    }
+    if (user.user_role === "Administrator") {
+      navigate(`/admin/${user.user_id}/dashboard`);
+    } else if (user.user_role === "Lecturer") {
+      navigate(`/lecturer/${user.user_id}/dashboard`);
+    } else {
+      // Student — go straight to Signup with the Lecturer role preselected.
+      navigate("/signup", { state: { role: "Lecturer" } });
+    }
+  }
+
   return (
     <div className="bg-[#F7F8FC]">
-
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid lg:grid-cols-2 gap-10 items-center">
-
           <div>
             <h1 className="text-5xl font-bold text-[#142175] leading-tight">
               Unlock Your Potential
@@ -66,21 +91,21 @@ const navigate = useNavigate();
             <p className="text-gray-600 mt-6">
               Master in-demand skills with high-quality education designed for
               the modern world.
-            </p>  
-              <button className="bg-[#142175] text-white px-6 py-3 rounded-lg mt-5  "
-              onClick={() => navigate('/courses')}
-              >
-                Explore Courses →
-              </button>
-
+            </p>
+            <button
+              className="bg-[#142175] text-white px-6 py-3 rounded-lg mt-5  "
+              onClick={() => navigate("/courses")}
+            >
+              Explore Courses →
+            </button>
           </div>
 
-          <div className="bg-[#142175] rounded-2xl p-8 shadow-xl" >
+          <div className="bg-[#142175] rounded-2xl p-8 shadow-xl">
             <img
               src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNoQcFQwFuJAur3UflOJa_8opg_Y0k6xaAC-bl1G5bspjeu9uAMeMMpn8&s=10"
               alt=""
               className="rounded-xl w-full h-[300px] object-cover"
-              id = 'move'
+              id="move"
             />
           </div>
         </div>
@@ -115,7 +140,6 @@ const navigate = useNavigate();
 
       {/* Why Choose Us */}
       <section className="max-w-7xl mx-auto px-6 py-20">
-
         <div className="text-center">
           <h2 className="text-3xl font-bold">Why Choose Us</h2>
           <p className="text-gray-500 mt-2">
@@ -124,50 +148,37 @@ const navigate = useNavigate();
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 mt-12">
-
           {chooseUs.map((item, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl hover:text-black border hover:bg-gray-200" id = 'move'>
-              <div className="text-[#142175] text-xl mb-4">
-                {item.icon}
-              </div>
+            <div
+              key={index}
+              className="bg-white p-6 rounded-xl hover:text-black border hover:bg-gray-200"
+              id="move"
+            >
+              <div className="text-[#142175] text-xl mb-4">{item.icon}</div>
 
-              <h3 className="font-semibold text-lg">
-                {item.title}
-              </h3>
+              <h3 className="font-semibold text-lg">{item.title}</h3>
 
-              <p className="text-gray-600 mt-2">
-                {item.content}
-              </p>
+              <p className="text-gray-600 mt-2">{item.content}</p>
             </div>
           ))}
-
         </div>
       </section>
 
       {/* Featured Courses */}
       <section className="max-w-7xl mx-auto px-6 pb-20">
-
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h2 className="text-3xl font-bold">
-              Featured Courses
-            </h2>
+            <h2 className="text-3xl font-bold">Featured Courses</h2>
 
-            <p className="text-gray-500">
-              Our most popular learning paths
-            </p>
+            <p className="text-gray-500">Our most popular learning paths</p>
           </div>
 
-          <Link
-            to="/courses"
-            className="text-[#142175] font-medium"
-          >
+          <Link to="/courses" className="text-[#142175] font-medium">
             View All Courses →
           </Link>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
           {courses.map((course, index) => (
             <div
               key={index}
@@ -180,34 +191,26 @@ const navigate = useNavigate();
               />
 
               <div className="p-5">
-                <h3 className="font-semibold text-lg">
-                  {course.title}
-                </h3>
+                <h3 className="font-semibold text-lg">{course.title}</h3>
 
-                <p className="text-gray-500 text-sm mt-1">
-                  {course.author}
-                </p>
+                <p className="text-gray-500 text-sm mt-1">{course.author}</p>
 
                 <div className="flex justify-between mt-4">
                   <span className="font-bold text-[#142175]">
                     {course.price}
                   </span>
 
-                  <span className="text-green-600">
-                    ★ {course.rating}
-                  </span>
+                  <span className="text-green-600">★ {course.rating}</span>
                 </div>
               </div>
             </div>
           ))}
-
         </div>
       </section>
 
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-6 pb-20">
         <div className="bg-[#2F3FAE] rounded-3xl text-center py-16 px-8">
-
           <p className="text-white text-3xl font-bold sm:text-xl">
             Ready to start your journey?
           </p>
@@ -217,18 +220,22 @@ const navigate = useNavigate();
           </p>
 
           <div className="flex justify-center gap-4 mt-8 flex-wrap">
-            <button className="bg-blue-500 px-6 py-3 text-black cursor-pointer rounded-lg font-medium hover:text-white">
+            <button
+              onClick={handleEnrollNow}
+              className="bg-blue-500 px-6 py-3 text-black cursor-pointer rounded-lg font-medium hover:text-white hover:bg-blue-600 transition-colors duration-200"
+            >
               Enroll Now
             </button>
 
-            <button className="bg-white/10 cursor-pointer text-white px-6 py-3 rounded-lg border border-white/20">
+            <button
+              onClick={handleBecomeInstructor}
+              className="bg-white/10 cursor-pointer text-white px-6 py-3 rounded-lg border border-white/20 hover:bg-white/20 transition-colors duration-200"
+            >
               Become An Instructor
             </button>
           </div>
-
         </div>
       </section>
-
     </div>
   );
 }

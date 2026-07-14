@@ -32,6 +32,12 @@ function StudentDashboard() {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           navigate("/login");
+        } else {
+          // This will notify you if the server is offline, CORS is blocked, or a 500 error occurs
+          toast.error(
+            err.response?.data?.message ||
+              "Failed to connect to the server. Check backend.",
+          );
         }
       })
       .finally(() => setLoading(false));

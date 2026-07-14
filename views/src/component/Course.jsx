@@ -6,6 +6,7 @@ function Course() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState("");
+  const [priceFilter, setPriceFilter] = useState("all"); // all | free | premium
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,11 +31,18 @@ function Course() {
 
     fetchCourses();
   }, [search]);
+
+  const visibleCourses = courses.filter((c) => {
+    if (priceFilter === "free") return Number(c.price) === 0;
+    if (priceFilter === "premium") return Number(c.price) > 0;
+    return true;
+  });
+
   return (
     <section className="max-w-7xl mx-auto px-6 py-12">
       {/* Search */}
-      <div className="mb-10">
-        <div className="relative max-w-md">
+      <div className="mb-10 flex flex-wrap items-center gap-3">
+        <div className="relative max-w-md flex-1 min-w-[240px]">
           <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
           <input
             type="text"
@@ -44,11 +52,31 @@ function Course() {
             className="w-full pl-11 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#142175]"
           />
         </div>
+
+        <div className="flex gap-2">
+          {[
+            { key: "all", label: "All" },
+            { key: "free", label: "Free" },
+            { key: "premium", label: "Premium" },
+          ].map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => setPriceFilter(opt.key)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
+                priceFilter === opt.key
+                  ? "bg-[#142175] text-white border-[#142175]"
+                  : "bg-white text-gray-600 border-gray-300 hover:border-[#142175]"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
         <p className="text-gray-500">Loading courses...</p>
-      ) : courses.length === 0 ? (
+      ) : visibleCourses.length === 0 ? (
         <div className="text-center py-16">
           <i className="fa-solid fa-book-open text-5xl text-gray-300 mb-4"></i>
           <p className="text-gray-500">
@@ -57,7 +85,7 @@ function Course() {
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {courses.map((course) => (
+          {visibleCourses.map((course) => (
             <div
               key={course.course_id}
               onClick={() =>
@@ -66,15 +94,26 @@ function Course() {
               className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-lg transition cursor-pointer"
             >
               {/* Thumbnail from YouTube or fallback */}
-              <img
-                src={
-                  course.videoURL && course.videoURL.includes("youtube")
-                    ? `https://img.youtube.com/vi/${extractYouTubeId(course.videoURL)}/hqdefault.jpg`
-                    : "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400"
-                }
-                alt={course.title}
-                className="h-44 w-full object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={
+                    course.video_id
+                      ? `https://img.youtube.com/vi/${course.video_id}/hqdefault.jpg`
+                      : "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400"
+                  }
+                  alt={course.title}
+                  className="h-44 w-full object-cover"
+                />
+                <span
+                  className={`absolute top-2 right-2 text-xs font-bold px-2.5 py-1 rounded-full shadow ${
+                    Number(course.price) > 0
+                      ? "bg-amber-400 text-amber-900"
+                      : "bg-emerald-500 text-white"
+                  }`}
+                >
+                  {Number(course.price) > 0 ? `$${course.price}` : "FREE"}
+                </span>
+              </div>
 
               <div className="p-4">
                 <div className="flex justify-between items-center mb-2">
@@ -122,10 +161,4 @@ function Course() {
   );
 }
 
-// Helper: extract YouTube video ID from full URL or short ID
-function extractYouTubeId(url) {
-  if (!url) return "";
-  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : url;
-}
 export default Course;
