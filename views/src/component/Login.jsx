@@ -1,10 +1,28 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-
+import  useAuth  from "../hooks/useAuth";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
-
+  const [form, setForm] = useState( {
+    email: "",
+    password: ""
+  });
+  const {error, loading} = useAuth();
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+  const { login } = useAuth(); 
+ const handleLogin = async (e) => {
+    e.preventDefault();
+    console.log(form);
+    // login(form.email, form.password);
+    await login(form.email, form.password);
+  }
+  
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#F7F8FC] px-6">
       <div className="w-full max-w-md">
@@ -26,7 +44,7 @@ function Login() {
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mt-8">
+        <form onSubmit={handleLogin} className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mt-8">
 
           {/* Email */}
           <div>
@@ -36,8 +54,10 @@ function Login() {
 
             <input
               type="email"
+              name = "email"
               placeholder="name@company.com"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-[#142175]"
+              onChange={handleChange}
             />
           </div>
 
@@ -59,8 +79,10 @@ function Login() {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
                 placeholder="••••••••"
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 outline-none focus:border-[#142175]"
+                onChange={handleChange}
               />
 
               <button
@@ -79,10 +101,16 @@ function Login() {
 
           {/* Sign In */}
           <button
-            className="w-full bg-[#142175] text-white py-3 rounded-lg mt-6 font-medium hover:bg-[#0d185a] transition"
+            className="w-full bg-[#142175] text-white py-3 cursor-pointer rounded-lg mt-6 font-medium hover:bg-[#0d185a] transition"
+            type="submit"
           >
+            {loading && <p>Loading...</p>}
             Sign In →
           </button>
+
+          {error && (
+          <div className="bg-red-500 text-white rounded-lg p-2 mt-3">{error}</div>
+        )}
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-6">
@@ -111,7 +139,7 @@ function Login() {
               Github
             </button>
           </div>
-        </div>
+        </form>
 
         {/* Signup */}
         <p className="text-center text-gray-600 mt-8">
@@ -122,6 +150,7 @@ function Login() {
           >
             Sign Up
           </Link>
+
         </p>
       </div>
     </div>

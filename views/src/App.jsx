@@ -14,22 +14,25 @@ import Video  from "./component/Video.jsx";
 // import pages
 import Layout from "./component/Layout.jsx" ;
 import StudentDashboard from "./pages/StudentDashboard.jsx";
+import UnfoundPage from "./pages/UnfoundPage.jsx";
 
+import AuthProvider from './context/AuthProvider.jsx';
+import ProtectedRoute from './hooks/ProtectedRoute.jsx';
 
-import Test from './pages/Test.jsx'
-import Tes from './pages/Tes.jsx'
+import UnauthorizeUser from "./pages/UnauthorizeUser.jsx";
 function App() {
 
   return (
     <>
-     
+    
     <BrowserRouter>
     <ToastContainer 
-        position="top-right" // Options: "top-right", "top-left", "top-center", etc.
-        autoClose={3000}     // Closes automatically after 3 seconds
+        position="top-right" 
+        autoClose={2000}     
         hideProgressBar={false}
       />
-    <Routes>
+      <AuthProvider >
+    <Routes> 
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path = '/home' element = {< Home/>} />
@@ -38,21 +41,23 @@ function App() {
 
         <Route path="/login" element = { <Login />} />
         <Route path="/signup" element = { <Signup />} />
+
+        
         <Route path="/courses/:id/course_detail" element = {<CourseDetail/> } />
-        <Route path='/courses/:id/watch' element = { <Video />} />
 
-        {/* student page */}
-        <Route path='/students/:id/dashboard' element = { <StudentDashboard />} />
-        <Route path="/test" element = { <Test />} />
-        <Route path='/tes/:id' element = { < Tes />} />
-        <Route path="*" element={<h1 className="text-center text-2xl mt-20">404 - Page Not Found</h1>} />
+        {/* Protected route */}
+        <Route element={ <ProtectedRoute allowedRoles= "Student" /> } >
+        <Route path='/students/:id/dashboard' element = { <StudentDashboard /> } />
 
+          <Route path='/courses/:id/watch' element = { <Video /> } />
+        </Route>
+          <Route path='/unauthorized' element = { <UnauthorizeUser />} />
+        <Route path="*" element={<UnfoundPage />} />
       </Route>
 
     </Routes>
-
+    </AuthProvider>
     </BrowserRouter>
-
     </>
   )
 }

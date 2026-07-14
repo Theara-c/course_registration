@@ -1,0 +1,48 @@
+
+GET http://localhost:8000/api/courses/4/video?user_id=110
+
+
+###
+get  http://localhost:8000/api/courses/110/private
+
+
+
+###
+PATCH   http://localhost:8000/api/courses/4/progress
+Content-Type: application/json
+
+{
+    "user_id": 110,
+    "course_id": 4,
+    "last_watched": 200}
+###
+POST http://localhost:8000/api/auth/signup
+Content-Type: application/json
+
+{
+    "full_name": "naruto",
+    "email": "naruto@example.com",
+    "password": "12345",
+    "gender": "Male",
+    "dob": "2026/08/07",
+    "phone_number": "09876543"
+}
+###
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{ 
+    "email": "sotheara@example.com",
+    "password": "123456"
+}
+###
+GET http://localhost:8000/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTAsInJvbGUiOiJTdHVkZW50IiwiZW1haWwiOiJzb3RoZWFyYUBleGFtcGxlLmNvbSIsImlhdCI6MTc4Mzc5NzUxNCwiZXhwIjoxNzgzODgzOTE0fQ.Dc7hxuo9iztMMSjgtyO_n7wsY5_Vi7i0IKfwdUHXwNg
+### 
+GET http://localhost:8000/api/students/110/dashboard?
+Content-Type: application/json
+
+
+
+
+

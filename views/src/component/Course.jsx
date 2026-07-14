@@ -1,55 +1,77 @@
+import { useEffect } from "react";
 import { useState } from "react";
-
-const courses = [
-  {
-    id: 1,
-    title: "UI/UX Masterclass",
-    category: "Begineer",
-    rating: 4.9,
-    students: "1.2k",
-    image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4",
-    description: "Master modern design tools and principles.",
-  },
-  {
-    id: 2,
-    title: "Advanced React",
-    category: "Development",
-    rating: 4.7,
-    students: "850",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
-    description: "Learn server components, state management.",
-  },
-  {
-    id: 3,
-    title: "Product Strategy",
-    category: "Business",
-    rating: 4.8,
-    students: "2.1k",
-    image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c",
-    description: "Frameworks for scaling products.",
-  },
-  {
-    id: 4,
-    title: "Python for Data Science",
-    category: "Development",
-    rating: 5.0,
-    students: "3.4k",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNoQcFQwFuJAur3UflOJa_8opg_Y0k6xaAC-bl1G5bspjeu9uAMeMMpn8&s=10",
-    description: "From basics to machine learning models.",
-  },
-];
+import { getCategory, getCourses } from "../api/courseApi";
+import { useSearchParams } from "react-router-dom";
+import CourseCard from "./CourseCard";
+import useAuth from "../hooks/useAuth";
 
 export default function Course() {
-  const [search, setSearch] = useState("");
+  const [data, setData] = useState({ courses: [] });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [category, setCategory] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const params = new URLSearchParams(searchParams);
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 12;
+  const totalPages = data.totalPages || 1;
+  const { user } = useAuth();
+  const fetchCourses = async () => {
+    try {
+      const c = await getCourses(searchParams.toString(), user?.user_id);
+      setData(c);
+    } catch (err) {
+      console.log("error ", err);
+    }
+  };
+  const fetchCategory = async () => {
+    try {
+      const c = await getCategory();
+      setCategory(c);
+    } catch (err) {
+      console.log("Error", err);
+    }
+  };
+  useEffect(() => {
+    fetchCourses();
 
-  const filteredCourses = courses.filter((course) =>
-    course.title.toLowerCase().includes(search.toLowerCase()) || 
-    course.category.toLowerCase().includes(search.toLowerCase()) 
-  );
+    fetchCategory();
+  }, [searchParams]);
+  // Pagination
+  const getPages = () => {
+    const pages = [];
+
+    if (totalPages <= 5) {
+      // Show all pages if there are 5 or fewer
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+      return pages;
+    }
+
+    pages.push(1);
+
+    if (page > 3) {
+      pages.push("...");
+    }
+
+    const start = Math.max(2, page - 1);
+    const end = Math.min(totalPages - 1, page + 1);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (page < totalPages - 2) {
+      pages.push("...");
+    }
+
+    pages.push(totalPages);
+
+    return pages;
+  };
 
   return (
     <section className="max-w-7xl mx-auto px-6 py-12">
-
       {/* Search */}
       <div className="mb-10">
         <div className="relative max-w-md">
@@ -58,90 +80,116 @@ export default function Course() {
           <input
             type="text"
             placeholder="Search for courses, skills, or mentors..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchParams.get("search") || ""}
+            onChange={(e) => {
+              params.set("search", e.target.value);
+              setSearchParams(params);
+            }}
             className="w-full pl-11 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#142175]"
           />
+        </div>
+        <div className="flex flex-wrap mt-3 gap-2 ">
+          <button
+            className={` ${selectedCategory === "" ? "bg-[#142175] text-white" : "bg-gray-200 text-black"} px-3 py-2 rounded-lg  cursor-pointer mr-2 font-medium hover:text-white hover:bg-black`}
+            onClick={() => {
+              params.delete("category");
+              setSelectedCategory("");
+              setSearchParams(params);
+            }}
+          >
+            {" "}
+            All
+          </button>
+          {category.map((item, index) => (
+            <button
+              key={item.category_id || item.id || item.name || index}
+              className={` ${selectedCategory === item.category_name ? "bg-[#142175] text-white" : "bg-gray-200 text-black"} px-3 py-2 rounded-lg  cursor-pointer mr-2 font-medium hover:text-white hover:bg-black`}
+              onClick={() => {
+                params.set("category", item.category_name);
+                setSelectedCategory(item.category_name);
+                setSearchParams(params);
+              }}
+            >
+              {item.category_name}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Course Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {data.courses?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center min-h-[50vh] w-full text-center py-12">
+            {/* Clean icon/illustration placeholder */}
+            <div className="text-gray-300 text-5xl mb-3">🔍</div>
 
-        {filteredCourses.map((course) => (
-          <div
-            key={course.id}
-            className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-lg transition"
-          >
-            {/* Image */}
-            <img
-              src={course.image}
-              alt={course.title}
-              className="h-48 w-full object-cover"
-            />
+            <p className="text-xl font-semibold text-gray-700">
+              No courses found
+            </p>
 
-            {/* Content */}
-            <div className="p-4">
-
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
-                  {course.category}
-                </span>
-
-                <span className="text-sm text-yellow-500">
-                  ★ {course.rating}
-                </span>
-              </div>
-
-              <h3 className="font-bold text-lg text-gray-800">
-                {course.title}
-              </h3>
-
-              <p className="text-gray-500 text-sm mt-2 line-clamp-2">
-                {course.description}
-              </p>
-
-              <div className="mt-4 text-xs text-gray-500">
-                👥 {course.students} Students
-              </div>
-
-              <div className="flex justify-between items-center mt-5">
-                <span className="font-bold text-[#142175]">
-                  Premium
-                </span>
-
-                <button className="border border-[#142175] text-[#142175] text-xs px-3 py-1 rounded hover:bg-[#142175] hover:text-white transition">
-                  Preview
-                </button>
-              </div>
-            </div>
+            <button
+              onClick={() => setSearchParams("")}
+              className="mt-5 px-4 py-2 bg-[#142175] cursor-pointer text-white rounded-lg text-sm font-medium hover:bg-opacity-90 transition shadow-sm"
+            >
+              Clear Search
+            </button>
           </div>
-        ))}
+        ) : (
+          data.courses.map((course, index) => (
+            <CourseCard key={index} course={course} />
+          ))
+        )}
       </div>
 
       {/* Pagination */}
       <div className="flex justify-center items-center gap-2 mt-12">
-
-        <button className="w-8 h-8 border rounded text-gray-500" disabled>
+        <button
+          className="w-8 h-8 border rounded text-gray-500"
+          disabled={page === 1}
+          onClick={() => {
+            if (page > 1) {
+              setSearchParams({
+                page: page - 1,
+                search: searchParams.get("search"),
+              });
+            }
+            console.log(page);
+          }}
+        >
           ‹
         </button>
 
-        <button className="w-8 h-8 bg-[#142175] text-white rounded">
-          1
-        </button>
+        {getPages().map((p, i) => (
+          <button
+            key={i}
+            className={`w-8 h-8 ${page === p ? "bg-[#142175] text-white rounded" : "border rounded"}`}
+            onClick={() => {
+              setSearchParams({
+                page: p,
+                search: searchParams.get("search")
+                  ? searchParams.get("search")
+                  : "",
+              });
+            }}
+          >
+            {p}
+          </button>
+        ))}
 
-        <button className="w-8 h-8 border rounded">
-          2
-        </button>
-
-        <button className="w-8 h-8 border rounded">
-          3
-        </button>
-
-        <button className="w-8 h-8 border rounded text-gray-500">
+        <button
+          className="w-8 h-8 border rounded text-gray-500"
+          disabled={page >= totalPages}
+          onClick={() => {
+            if (page < totalPages) {
+              setSearchParams({
+                page: page + 1,
+                search: searchParams.get("search"),
+              });
+            }
+          }}
+        >
           ›
         </button>
-
       </div>
     </section>
   );

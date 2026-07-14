@@ -1,16 +1,19 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
-
+import useAuth from "../hooks/useAuth";
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
-    const [showMenu, setShowMenu] = useState(false);  
-
+  const [showMenu, setShowMenu] = useState(false); 
+  const navigate = useNavigate(); 
+  const { logout, user } = useAuth();
+  
+  const isLogin = localStorage.getItem("user") ? true : false;
   const menu = [
     { name: "Home", path: "/home" },
     { name: "Course", path: "/courses" },
     { name: "About Us", path: "/about" },
   ];
+
   return (
     <>
       <nav className="h-16 sticky top-0 z-50 bg-[#F8F9FF] flex items-center px-5 shadow">
@@ -60,24 +63,26 @@ function Navbar() {
           <div className=" bg-transparent flex justify-end  ml-auto items-center md:px-5 mr-5 ">
 
         <button
-          onClick={() => setShowMenu(!showMenu)}
-          className="w-10 h-10 rounded-full bg-[#142175] text-white"
+          onClick={() => {setShowMenu(!showMenu)
+          }}
+          className="w-10 h-10 rounded-full bg-[#142175] text-white cursor-pointer"
         >
           A
         </button>
         { showMenu  && (
           <div className="absolute top-16 right-8 w-52 bg-white rounded-lg shadow-lg border">
             <ul className="py-2">
-              <Link to='students/dashboard' className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer hover:text-black" 
+              onClick={() => {navigate(`/students/${user?.user_id}/dashboard`)
+                setShowMenu(!showMenu)
+              } }>
                 My Learning
-              </Link>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                Profile
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer hover:text-black">
                 Settings
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-500">
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-500" 
+              onClick={() => logout()}>
                 Logout
               </li>
             </ul>

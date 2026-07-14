@@ -2,18 +2,24 @@
 import { useState } from "react";
 import registerImage from "../assets/hero.jpg"; // 
 import { Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+
 function Signup() {
+  const { register, error } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
+    full_name: "",
     dob: "",
     email: "",
     password: "",
     confirmPassword: "",
-    phone: "",
+    phone_number: "",
     gender: "",
   });
-  const [error, setError] = useState("");
-
+//   const inputDate = "23/08/2026"; 
+// const reversedDate = inputDate.split('/').reverse().join('/'); database accept this form
+  const [err, setError] = useState("");
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -21,18 +27,35 @@ function Signup() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
     if (formData.password !== formData.confirmPassword) {
-      setError("Password does not match!. Pls try again");
+      setError("Password does not match!. Please try again");
       return;
     }
+    if ( !regex.test(formData.email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if ( formData)
     if (formData.password.length < 6) {
       setError("Password must be at least 6 character.");
       return;
     }
+    if ( formData.phone_number.length < 9){
+      setError("Phone number must be at least 9 character.");
+      return;
+    }
+    if (formData.phone_number === '' || !/^\d+$/.test(formData.phone_number)) {
+      setError("Please enter a valid phone number.");
+      return;
+    }
+    console.log("Form data before sending:", formData);
+    await register(formData);
+
+    if (error) setError(error);
   };
+
 
   return (
     <div className="min-h-screen flex">
@@ -56,7 +79,7 @@ function Signup() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
-            {/* Full Name + DOB */}
+            {/* Full Name + dob */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-gray-500 block mb-1">
@@ -64,11 +87,12 @@ function Signup() {
                 </label>
                 <input
                   type="text"
-                  name="fullName"
+                  name="full_name"
                   placeholder="Johny Sin"
-                  value={formData.fullName}
+                  value={formData.full_name}
                   onChange={handleChange}
                   className="w-full border rounded p-2"
+                  required
                 />
               </div>
 
@@ -82,6 +106,7 @@ function Signup() {
                   value={formData.dob}
                   onChange={handleChange}
                   className="w-full border rounded p-2"
+                  required
                 />
               </div>
             </div>
@@ -98,23 +123,38 @@ function Signup() {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
+                                  required
+
               />
             </div>
 
             {/* Passwords */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+              <div className="relative">
                 <label className="text-xs text-gray-500 block mb-1">
                   PASSWORD
                 </label>
                 <input
-                  type="password"
+                  type= { showPassword ? "text": "password"}
                   name="password"
-                  placeholder=""
+                  placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
                   className="w-full border rounded p-2"
+                                    required
+
                 />
+                <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-65/100 -translate-y-1/2 text-gray-500"
+              >
+                <i
+                  className={`fa-solid ${
+                    showPassword ? "fa-eye-slash" : "fa-eye"
+                  }`}
+                ></i>
+              </button>
               </div>
 
               <div>
@@ -124,10 +164,12 @@ function Signup() {
                 <input
                   type="password"
                   name="confirmPassword"
-                  placeholder=""
+                  placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className="w-full border rounded p-2"
+                                    required
+
                 />
               </div>
             </div>
@@ -140,11 +182,13 @@ function Signup() {
                 </label>
                 <input
                   type="tel"
-                  name="phone"
+                  name="phone_number"
                   placeholder="(+855) 000-000-000"
-                  value={formData.phone}
+                  value={formData.phone_number}
                   onChange={handleChange}
                   className="w-full border rounded p-2"
+                                    required
+
                 />
               </div>
 
@@ -157,6 +201,8 @@ function Signup() {
                   value={formData.gender}
                   onChange={handleChange}
                   className="w-full border rounded p-2"
+                                    required
+
                 >
                   <option value="">Select Option</option>
                   <option value="male">Male</option>
@@ -172,8 +218,8 @@ function Signup() {
             >
               CREATE ACCOUNT
             </button>
-            {error && (
-          <div className="bg-red-500 text-white rounded-lg">{error}</div>
+            {err && (
+          <div className="bg-red-500 text-white rounded-lg p-2">{err}</div>
         )}
 
           <p>
@@ -188,5 +234,6 @@ function Signup() {
     </div>
   );
 }
+
 
 export default Signup;

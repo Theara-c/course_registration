@@ -1,61 +1,50 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import RecommendCourse from "./RecommendCourse.jsx";
+import { useEffect, useState } from "react";
+import { getHomeCourses } from "../api/courseApi.js";
 
-const courses = [
+const chooseUs = [
   {
-    title: "Advanced React",
-    author: "Dr. Sarah Chen",
-    price: "$39.99",
-    rating: "4.8",
-    image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4",
+    icon: "📚",
+    title: "Flexible Learning",
+    content: "Access courses anytime, anywhere at your own pace.",
   },
   {
-    title: "UI/UX Masterclass 2024",
-    author: "A. Marcus Sterling",
-    price: "$49.00",
-    rating: "4.9",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
+    icon: "🚀",
+    title: "Progress Tracking",
+    content: "Stay motivated with learning analytics and milestones.",
   },
   {
-    title: "Machine Learning Basics",
-    author: "Dr. Alex Rodriguez",
-    price: "$59.99",
-    rating: "4.9",
-    image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c",
+    icon: "🌍",
+    title: "Global Certification",
+    content: "Earn certificates recognized worldwide.",
   },
 ];
 
-       
-
-const chooseUs = [
-    {
-        icon: '📚',
-        title: 'Flexible Learning',
-        content: 'Access courses anytime, anywhere at your own pace.'
-
-    },
-    {
-        icon: '🚀',
-        title: 'Progress Tracking',
-        content: 'Stay motivated with learning analytics and milestones.'
-    },
-    {
-        icon: '🌍',
-        title: 'Global Certification',
-        content: 'Earn certificates recognized worldwide.'
-    }
-]
-
 
 export default function LandingPage() {
-const navigate = useNavigate();
+  const [data, setData] = useState({courses: []});
+  const navigate = useNavigate();
+
+  const fetchHomePage = async () => {
+    try {
+      const c = await getHomeCourses();
+      setData(c);
+      console.log(c);
+    } catch (err) {
+      console.log("error ", err.message);
+    }
+  };
+  useEffect(() => {
+    fetchHomePage();
+  }, []);
+
   return (
     <div className="bg-[#F7F8FC]">
-
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid lg:grid-cols-2 gap-10 items-center">
-
           <div>
             <h1 className="text-5xl font-bold text-[#142175] leading-tight">
               Unlock Your Potential
@@ -66,21 +55,21 @@ const navigate = useNavigate();
             <p className="text-gray-600 mt-6">
               Master in-demand skills with high-quality education designed for
               the modern world.
-            </p>  
-              <button className="bg-[#142175] text-white px-6 py-3 rounded-lg mt-5  "
-              onClick={() => navigate('/courses')}
-              >
-                Explore Courses →
-              </button>
-
+            </p>
+            <button
+              className="bg-[#142175] text-white px-6 py-3 rounded-lg mt-5 cursor-pointer  "
+              onClick={() => navigate("/courses")} id = 'move'
+            >
+              Explore Courses →
+            </button>
           </div>
 
-          <div className="bg-[#142175] rounded-2xl p-8 shadow-xl" >
+          <div className="bg-[#142175] rounded-2xl p-8 shadow-xl">
             <img
               src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNoQcFQwFuJAur3UflOJa_8opg_Y0k6xaAC-bl1G5bspjeu9uAMeMMpn8&s=10"
               alt=""
               className="rounded-xl w-full h-[300px] object-cover"
-              id = 'move'
+              id="move"
             />
           </div>
         </div>
@@ -115,7 +104,6 @@ const navigate = useNavigate();
 
       {/* Why Choose Us */}
       <section className="max-w-7xl mx-auto px-6 py-20">
-
         <div className="text-center">
           <h2 className="text-3xl font-bold">Why Choose Us</h2>
           <p className="text-gray-500 mt-2">
@@ -124,90 +112,42 @@ const navigate = useNavigate();
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 mt-12">
-
           {chooseUs.map((item, index) => (
-            <div key={index} className="bg-white p-6 rounded-xl hover:text-black border hover:bg-gray-200" id = 'move'>
-              <div className="text-[#142175] text-xl mb-4">
-                {item.icon}
-              </div>
+            <div
+              key={index}
+              className="bg-white p-6 rounded-xl hover:text-black border hover:bg-gray-200"
+              id="move"
+            >
+              <div className="text-[#142175] text-xl mb-4">{item.icon}</div>
 
-              <h3 className="font-semibold text-lg">
-                {item.title}
-              </h3>
+              <h3 className="font-semibold text-lg">{item.title}</h3>
 
-              <p className="text-gray-600 mt-2">
-                {item.content}
-              </p>
+              <p className="text-gray-600 mt-2">{item.content}</p>
             </div>
           ))}
-
         </div>
       </section>
 
       {/* Featured Courses */}
       <section className="max-w-7xl mx-auto px-6 pb-20">
-
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-8 py-3">
           <div>
-            <h2 className="text-3xl font-bold">
-              Featured Courses
-            </h2>
+            <h2 className="text-3xl font-bold">Featured Courses</h2>
 
-            <p className="text-gray-500">
-              Our most popular learning paths
-            </p>
+            <p className="text-gray-500">Our most popular learning paths</p>
           </div>
 
-          <Link
-            to="/courses"
-            className="text-[#142175] font-medium"
-          >
+          <Link to="/courses" className="text-[#142175] font-medium cursor-pointer">
             View All Courses →
           </Link>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-          {courses.map((course, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl overflow-hidden border hover:shadow-lg transition"
-            >
-              <img
-                src={course.image}
-                alt={course.title}
-                className="h-48 w-full object-cover"
-              />
-
-              <div className="p-5">
-                <h3 className="font-semibold text-lg">
-                  {course.title}
-                </h3>
-
-                <p className="text-gray-500 text-sm mt-1">
-                  {course.author}
-                </p>
-
-                <div className="flex justify-between mt-4">
-                  <span className="font-bold text-[#142175]">
-                    {course.price}
-                  </span>
-
-                  <span className="text-green-600">
-                    ★ {course.rating}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-
-        </div>
+        <RecommendCourse courses={data.courses} />
       </section>
 
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-6 pb-20">
         <div className="bg-[#2F3FAE] rounded-3xl text-center py-16 px-8">
-
           <p className="text-white text-3xl font-bold sm:text-xl">
             Ready to start your journey?
           </p>
@@ -225,10 +165,8 @@ const navigate = useNavigate();
               Become An Instructor
             </button>
           </div>
-
         </div>
       </section>
-
     </div>
   );
 }

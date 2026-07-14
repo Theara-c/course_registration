@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 function Footer() {
   const menu = [
     { name: "Home", path: "/home" },
-    { name: "Course", path: "/course" },
+    { name: "Course", path: "/courses" },
     { name: "About Us", path: "/about" },
     { name: "Terms of Service", path: "/terms" },
     { name: "Privacy Policy", path: "/privacy" },
