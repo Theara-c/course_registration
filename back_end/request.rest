@@ -1,0 +1,62 @@
+
+GET http://localhost:8000/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTAsInJvbGUiOiJTdHVkZW50IiwiZW1haWwiOiJzb3RoZWFyYUBleGFtcGxlLmNvbSIsImlhdCI6MTc4NDM5MDI0NywiZXhwIjoxNzg0NDc2NjQ3fQ.MdbvOPdTg_HCeREspcvYHIg9_UGqF_TRaqyQcany1Jk
+
+###
+get  http://localhost:8000/api/courses/
+
+
+###
+PATCH   http://localhost:8000/api/courses/4/progress
+Content-Type: application/json
+
+{
+    "user_id": 110,
+    "course_id": 4,
+    "last_watched": 200}
+###
+POST http://localhost:8000/api/auth/signup
+Content-Type: application/json
+
+{
+    "full_name": "naruto",
+    "email": "naruto@example.com",
+    "password": "12345",
+    "gender": "Male",
+    "dob": "2026/08/07",
+    "phone_number": "09876543"
+}
+###
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{ 
+    "email": "sori@example.com",
+    "password": "1234567"
+}
+###
+GET http://localhost:8000/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTUsInJvbGUiOiJsZWN0dXJlciIsImVtYWlsIjoic29yaUBleGFtcGxlLmNvbSIsImlhdCI6MTc4NDIyMTI0MiwiZXhwIjoxNzg0MzA3NjQyfQ.e0uuiM1Of-Mvx9LWvwkj2q-HkL66I5SLvsUvBvttkLU
+###
+GET http://localhost:8000/api/students/110/dashboard?
+Content-Type: application/json
+###
+patch   http://localhost:8000/api/admin/dashboard/update
+Content-Type:  application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTcsInJvbGUiOiJBZG1pbiIsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3ODQzNDc4MzUsImV4cCI6MTc4NDQzNDIzNX0.GIP5pe8tZFZ3o9wPyhHyJVBvLeFmPQ2dgeEVfWpZvHY
+
+{
+    "course_id": 103,
+    "status": "waiting"
+}
+
+### 
+GET http://localhost:8000/api/me
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTAsInJvbGUiOiJTdHVkZW50IiwiZW1haWwiOiJzb3RoZWFyYUBleGFtcGxlLmNvbSIsImlhdCI6MTc4NDM5MDEzMiwiZXhwIjoxNzg0NDc2NTMyfQ.ipeZI1kWqo-fjHWb67MQ-Sr-oNmE7MD-QUHKK5ZBTLQ
+
+###
+
+
+
+
