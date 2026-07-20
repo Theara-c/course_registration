@@ -3,7 +3,7 @@ import AdminLayout from "./adminLayout";
 import { getCategory } from "../../api/courseApi";
 import { useSearchParams } from "react-router-dom";
 import { getAdminDashboard, updateCourseStatus } from "../../api/adminAPI";
-
+import ReviewVideo from "../../component/ReviewVideo.jsx";
 
 import {
   FaUsers,
@@ -19,6 +19,8 @@ export default function AdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [courses, setCourses] = useState([]);
   const [ data, setData] = useState(null);
+  const [isReview, setIsReview] = useState(false);
+  const [ selectCourse, setSelectCourse] = useState(null);
 
   // 1. Read the current category ID from the URL search parameters
   const currentCategory = searchParams.get("category") || "";
@@ -57,6 +59,7 @@ export default function AdminDashboard() {
     setCourses((prevCourses) => 
       prevCourses.filter((course) => course.course_id !== course_id)
     );
+    setIsReview(false);
     
   }
   useEffect ( () => {
@@ -153,6 +156,7 @@ export default function AdminDashboard() {
               <tr className="text-left text-gray-600 text-sm">
                 <th className="px-6 py-4">Lecturer</th>
                 <th>Course Title</th>
+                <th>Price</th>
                 <th>Submission Date</th>
                 <th>Status</th>
                 <th className="text-center">Actions</th>
@@ -168,6 +172,8 @@ export default function AdminDashboard() {
                     </div>
                   </td>
                   <td className="font-medium text-gray-700">{course.title}</td>
+                  <td className = 'text-md text-white pr-4'>
+                    <span className  = "p-2 bg-green-500 rounded-lg ">{course.price == 0 ? 'Free': "$"+course.price }</span></td>
                   <td>{handleDate(course.created_at)}</td>
                   <td>
                     <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">
@@ -177,8 +183,12 @@ export default function AdminDashboard() {
                   </td>
                   <td>
                     <div className="flex justify-center items-center gap-3">
-                      <button className="text-gray-500 hover:text-indigo-700">
-                        <FaEye />
+                      <button className="text-gray-500 hover:text-indigo-700" 
+                      onClick={ () => { setIsReview(true) 
+                        setSelectCourse(course)    
+                        console.log(selectCourse) 
+                        }}>
+                        <FaEye  />
                       </button>
                       <button className="border border-red-400 text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg text-sm"
                       onClick = { ()=> { handleApproval('reject', course.course_id)}}>
@@ -192,6 +202,8 @@ export default function AdminDashboard() {
                   </td>
                 </tr>
               ))}
+              { isReview && selectCourse && < ReviewVideo onClose={ () => setIsReview(false)} 
+                title = { selectCourse.title} videoUrl={selectCourse.video_id} onApprove={() => handleApproval('active', selectCourse.course_id)}  />}
             </tbody>
           </table>
         </div>

@@ -16,10 +16,6 @@ import { sequelize } from "../database/db.js";
         allowNull: false,
         unique: true,
       },
-
-      description: {
-        type: DataTypes.STRING(255),
-      },
     },
     {
       tableName: "category",

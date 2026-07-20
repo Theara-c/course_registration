@@ -14,7 +14,7 @@ export const getLecturerDashboard = async (token) => {
   }
 };
 export const createNewCourse = async (
-  token,
+  token, 
   {
     title,
     sub_description,

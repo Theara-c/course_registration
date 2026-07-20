@@ -19,11 +19,11 @@ function AdminLayout({ children, activeTab, setCreate }) {
       onClick: () => navigate(`/admin/${user.user_id}/user`),
     },
     {
-      key: "settings",
-      label: "Settings",
-      icon: "fa-gear",
-      onClick: () => navigate(`/admin/${user.user_id}/settings`),
-    },
+      key: 'activity',
+      label: "Activity",
+      icon: 'fa-clock-rotate-left',
+      onClick: () => navigate(`/admin/dashboard/activity`)
+    }
   ];
 
   return (
@@ -46,7 +46,7 @@ function AdminLayout({ children, activeTab, setCreate }) {
         {/* Profile summary */}
         <div className="px-6 py-5 border-b border-[#142175]/20">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7C6FFF] to-[#142175] flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-md">
+            <div className="w-11 h-11 rounded-xl bg-[#142175] flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-md">
               {user.full_name?.charAt(0)?.toUpperCase() || "L"}
             </div>
             <div className="overflow-hidden">

@@ -25,6 +25,7 @@ import StudentManagement from "./pages/lecturer/StudentManagement.jsx";
 //admin page
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import UserManagement from "./pages/admin/UserManagement.jsx";
+import Activity from "./pages/admin/Activity.jsx";
 
 import AuthProvider from "./context/AuthProvider.jsx";
 import ProtectedRoute from "./hooks/ProtectedRoute.jsx";
@@ -63,7 +64,7 @@ function App() {
                 }
               >
                 <Route
-                  path="/students/:id/dashboard"
+                  path="/students/dashboard"
                   element={<StudentDashboard />}
                 />
 
@@ -102,6 +103,10 @@ function App() {
                   element={<AdminDashboard />}
                 />
                 <Route path="/admin/:id/user" element={<UserManagement />} />
+                <Route
+                  path="/admin/dashboard/activity"
+                  element={<Activity />}
+                />
               </Route>
 
               <Route path="/unauthorized" element={<UnauthorizeUser />} />

@@ -1,6 +1,7 @@
 import { Course, Category, Enrollment, Rating, User } from "../models/relationship.js";
 import { sequelize } from "../database/db.js";
 import { Op, fn, col, QueryTypes } from "sequelize";
+import * as Action from '../service/activityService.js'
 
 
 export async function getAllCourse(category, page = 1, limit = 12, search, offset) {
@@ -200,18 +201,19 @@ export async function getCourseByIdAndUserId(course_id, user_id) {
     throw error;
   }
 }
-export async function getCourseById(course_id) {
+
+export async function getCourseById(course_id, status) {
          const course = await Course.findOne({
       where: {
         course_id: course_id,
-        status: 'Active'
+        status: status
       },
       subQuery: false,
       include: [
         {
           model: Category,
           as: 'category', 
-          attributes: ['category_name']
+          attributes: ['category_id','category_name']
         },
         {
           model: User,
@@ -281,7 +283,7 @@ export async function createCourseRecord(title, description, sub_description, vi
 export async function getCoursesByLecturer(user_id) {
   try {
     let query = `
-     select c.course_id, c.title, c.sub_description, c.video_id, cat.category_name, c.status, count( distinct e.user_id) as totalStudent
+     select c.course_id, c.price, c.duration, c.title, c.sub_description, c.video_id, cat.category_name, c.status, count( distinct e.user_id) as totalStudent
      from course c 
      join category cat on c.category_id = cat.category_id
      left join enrollment e on c.course_id = e.course_id
@@ -307,4 +309,35 @@ export async function updateStatus(course_id, status) {
       }
     }
   );
+  
+}
+export async function updateCourseData({ title, duration, description, sub_description, category_id, price, video_id }, course_id) {
+  const [affectedRows] = await Course.update(
+    {
+      title,
+      duration,
+      description,
+      sub_description,
+      category_id,
+      price,
+      video_id,
+      status: "waiting"
+    },
+    {
+      where: {
+        course_id: course_id 
+      }
+    }
+  );
+  return affectedRows; 
+}
+export async function checkExistingEnrollment( user_id, course_id) {
+  const res = await sequelize.query(`
+    select * from enrollment where
+    user_id = :user_id and course_id = :course_id `,
+  {
+    replacements: {user_id, course_id},
+    type: QueryTypes.SELECT
+  } )
+  return res.length > 0;
 }

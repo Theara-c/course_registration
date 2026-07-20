@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaChalkboardTeacher, FaUserGraduate, FaPlus, FaDownload } from "react-icons/fa";
+import { FaChalkboardTeacher, FaUserGraduate, FaPlus } from "react-icons/fa";
 import AdminLayout from "./adminLayout";
 import { useSearchParams } from "react-router-dom";
 import { getUserManagement } from "../../api/adminAPI.js";
@@ -163,12 +163,6 @@ export default function UserManagement() {
             </select>
 
           </div>
-
-          <button className="flex items-center gap-2 text-indigo-800 font-medium hover:text-indigo-600">
-            <FaDownload />
-            Export Data
-          </button>
-
         </div>
 
         {/* Table */}

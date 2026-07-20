@@ -74,10 +74,18 @@ function Navbar() {
           <div className="absolute top-16 right-8 w-52 bg-white rounded-lg shadow-lg border">
             <ul className="py-2">
               <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer hover:text-black" 
-              onClick={() => {navigate(`/students/${user?.user_id}/dashboard`)
+              onClick={() => {
+                if (user.role.toLowerCase() === "student") {
+                  navigate(`students/dashboard`);
+                } else if (user.role.toLowerCase() === "lecturer") {
+                  navigate(`lecturers/${user.user_id}/dashboard`);
+                } else {
+                  navigate(`admin/${user.user_id}/dashboard`);
+                }               
+
                 setShowMenu(!showMenu)
               } }>
-                My Learning
+                My Dashboard
               </li>
               <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer hover:text-black">
                 Settings

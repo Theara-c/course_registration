@@ -1,6 +1,8 @@
 import { Course, Category, Enrollment, Rating, User } from "../models/relationship.js";
 import { sequelize } from "../database/db.js";
 import { Op, fn, col, QueryTypes } from "sequelize";
+import * as Action from '../service/activityService.js'
+
 
 export async function createEnrollmentRecord(user_id, course_id, status) {
   const enrollment = await Enrollment.create({
@@ -8,6 +10,7 @@ export async function createEnrollmentRecord(user_id, course_id, status) {
     course_id,
     status,
   });
+  Action.userAction(user_id, "Create Enrollment", "Course", enrollment.enrollment_id )
 
   return enrollment.enrollment_id;
 }
@@ -21,6 +24,7 @@ export async function updateStatus(user_id, course_id, status) {
       },
     }
   );
+    Action.userAction(user_id, `Update Status ${status}`, "Enrollment", course_id )
 
   return affectedRows;
 }
@@ -36,11 +40,12 @@ export async function updateProgressVideo(user_id, course_id, last_watched) {
       },
     }
   );
+
   return affectedRows;
 }
 export async function getEnrollmentInfo( user_id, filter) {
     let query = `
-    select c.title, c.course_id, c.video_id, c.duration, e.last_watched as progress, e.status from enrollment e
+    select c.title, c.course_id, e.last_watched, c.video_id, c.duration, e.last_watched as progress, e.status from enrollment e
     join users u on e.user_id = u.user_id
     join course c on c.course_id = e.course_id
     where u.user_id = :user_id
@@ -52,8 +57,10 @@ export async function getEnrollmentInfo( user_id, filter) {
         query += ` and e.status = :status`;
         replacements.status = filter;
     }
+    
 
     const [rows] = await sequelize.query(query, { replacements });
+      Action.userAction(user_id, "Get Enrollment Info", "Enrollment", user_id )
     return rows;
 
 }
@@ -62,6 +69,8 @@ export async function getUserInfo(user_id) {
         select u.user_id, u.email, u.user_role, u.full_name, u.phone_number, u.date_of_birth as dob, u.gender
         from users u 
         where u.user_id = :user_id`, { replacements: { user_id } });
+          Action.userAction(user_id, "Get User Info ", "User", user_id )
+
     return rows[0];
 }
 
@@ -81,6 +90,7 @@ export async function getCourseEnrollment(
             e.last_watched,
             e.status,
             c.duration,
+            c.course_id,
             ROUND(
                 (e.last_watched / c.duration) * 100
             ) AS progress

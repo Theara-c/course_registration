@@ -7,13 +7,14 @@ get  http://localhost:8000/api/courses/
 
 
 ###
-PATCH   http://localhost:8000/api/courses/4/progress
+PATCH   http://localhost:8000/api/lecturers/courses/update
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTUsInJvbGUiOiJsZWN0dXJlciIsImVtYWlsIjoic29yaUBleGFtcGxlLmNvbSIsImlhdCI6MTc4NDQyOTMyNCwiZXhwIjoxNzg0NTE1NzI0fQ.XyDXonmaYMUbI9ZZEBKimmm8JRMj8pfaD-NLq8l3kG4
 
 {
     "user_id": 110,
-    "course_id": 4,
-    "last_watched": 200}
+    "course_id": 108,
+    "status": "waiting"}
 ###
 POST http://localhost:8000/api/auth/signup
 Content-Type: application/json
@@ -31,12 +32,12 @@ POST http://localhost:8000/api/auth/login
 Content-Type: application/json
 
 { 
-    "email": "sori@example.com",
-    "password": "1234567"
+    "email": "sotheara@example.com",
+    "password": "123456"
 }
 ###
 GET http://localhost:8000/api/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTUsInJvbGUiOiJsZWN0dXJlciIsImVtYWlsIjoic29yaUBleGFtcGxlLmNvbSIsImlhdCI6MTc4NDIyMTI0MiwiZXhwIjoxNzg0MzA3NjQyfQ.e0uuiM1Of-Mvx9LWvwkj2q-HkL66I5SLvsUvBvttkLU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTAsInJvbGUiOiJTdHVkZW50IiwiZW1haWwiOiJzb3RoZWFyYUBleGFtcGxlLmNvbSIsImlhdCI6MTc4NDQzNTcyNCwiZXhwIjoxNzg0NTIyMTI0fQ.j7xY6Syq8fgbP2CWrSGgUi2Q6sNWMsuJKO9Xk9M2In4
 ###
 GET http://localhost:8000/api/students/110/dashboard?
 Content-Type: application/json
@@ -51,10 +52,23 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTcsI
 }
 
 ### 
-GET http://localhost:8000/api/me
+GET http://localhost:8000/api/admin/dashboard/activity
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTUsInJvbGUiOiJsZWN0dXJlciIsImVtYWlsIjoic29yaUBleGFtcGxlLmNvbSIsImlhdCI6MTc4NDQ3NDIzOSwiZXhwIjoxNzg0NTYwNjM5fQ.UdxINfg7-CyE5Q42TZylDrfhnLxMJ_pUByppMQP-rD8
 
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTAsInJvbGUiOiJTdHVkZW50IiwiZW1haWwiOiJzb3RoZWFyYUBleGFtcGxlLmNvbSIsImlhdCI6MTc4NDM5MDEzMiwiZXhwIjoxNzg0NDc2NTMyfQ.ipeZI1kWqo-fjHWb67MQ-Sr-oNmE7MD-QUHKK5ZBTLQ
+###
+PATCH  http://localhost:8000/api/courses/106/edit
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMTUsInJvbGUiOiJsZWN0dXJlciIsImVtYWlsIjoic29yaUBleGFtcGxlLmNvbSIsImlhdCI6MTc4NDQ3MDgwMywiZXhwIjoxNzg0NTU3MjAzfQ.xVlN0m7ndKt7AQY1f2bzBw9oQXZFZCQkAnunDFMug3w
 
+{
+    "title": "Introduction to Machine Learning",
+    "duration":  14033,
+    "sub_description": "This course is about machine learning",
+    "description": "Learn Machine Learning in a way that is accessible to absolute beginners. You will learn the basics of Machine Learning and how to use TensorFlow to implement many different concepts.",
+    "price": 0,
+    "category_id": "10",
+    "video_id": "i_LwzRVP7bg"
+}
 ###
 
 

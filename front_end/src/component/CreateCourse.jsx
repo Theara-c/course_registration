@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import YouTube from "react-youtube";
 import { createNewCourse } from "../api/lecturerAPI";
+import { getCourseByIdForLecturer, updateCourse } from "../api/courseApi.js";
 
 function extractYouTubeId(input) {
   if (!input) return null;
@@ -14,7 +15,7 @@ function extractYouTubeId(input) {
   return match && match[2] && match[2].length === 11 ? match[2] : null;
 }
 
-export default function CreateCourse({ setCreate, category }) {
+export default function CreateCourse({ setCreate, category, course_id }) {
   const [form, setForm] = useState({
     title: "",
     category: "",
@@ -44,7 +45,7 @@ export default function CreateCourse({ setCreate, category }) {
       toast.error("Course title is required");
       return;
     }
-    if (!form.category.trim()) {
+    if (!form.category) {
       toast.error("Category is required");
       return;
     }
@@ -69,10 +70,10 @@ export default function CreateCourse({ setCreate, category }) {
     // 2. Format Payload to avoid data type mismatch errors
     const processedPayload = {
       title: form.title.trim(),
-      category_id: form.category.trim(),
+      category_id: form.category,
       description: form.description.trim() || null,
       sub_description: form.sub_description.trim() || null,
-      video_id: cleanVideoId, 
+      video_id: cleanVideoId,
       duration: form.duration ? parseInt(form.duration, 10) : 0,
       price: Number(form.price) || 0,
     };
@@ -80,17 +81,53 @@ export default function CreateCourse({ setCreate, category }) {
     // console.log(processedPayload)
 
     try {
-      const res = await createNewCourse(token, processedPayload);
-      toast.success("Course created successfully!");
-      console.log(res);
-      setCreate(false);
+      let res = null;
+      if (!course_id) {
+        res = await createNewCourse(token, processedPayload);
+
+        toast.success("Course created successfully!");
+        console.log(res);
+        setCreate(false);
+      } else {
+        res = await updateCourse( token, course_id, processedPayload);
+        console.log(res)
+        toast.success(res.msg);
+        setCreate(false)
+      }
     } catch (err) {
       console.error("Course Creation Error Info:", err.response?.data);
-      toast.error(err.response?.data?.error + " or This video is already exist." || "Failed to create course");
+      toast.error(
+        err.response?.data?.error + " or This video is already exist." ||
+          "Failed to create course",
+      );
     } finally {
       setSaving(false);
     }
   };
+
+  useEffect(() => {
+    if (!course_id) return;
+    async function loadCourse() {
+      try {
+        const data = await getCourseByIdForLecturer(course_id);
+        console.log("this is data", data);
+        setForm({
+          title: data.title,
+          category: data.category.category_id,
+          description: data.description || "",
+          sub_description: data.sub_description || "",
+          video_id: data.video_id,
+          duration: data.duration,
+          price: data.price,
+        });
+
+        console.log("this is form ", form);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadCourse();
+  }, [course_id]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs p-4 overflow-y-auto">

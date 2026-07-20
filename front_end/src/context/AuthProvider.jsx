@@ -54,7 +54,7 @@ export default function AuthProvider({ children }) {
       localStorage.setItem("user", JSON.stringify(res.user));
       setUser(res.user);
       if (res.user.role.toLowerCase() === "student") {
-        navigate(`students/${res.user.user_id}/dashboard`);
+        navigate(`students/dashboard`);
       } else if (res.user.role.toLowerCase() === "lecturer") {
         navigate(`lecturers/${res.user.user_id}/dashboard`);
       } else {
@@ -75,7 +75,7 @@ export default function AuthProvider({ children }) {
       localStorage.setItem("user", JSON.stringify(res.user));
       setUser(res.user);
       if (res.user.role.toLowerCase() === "student") {
-        navigate(`students/${res.user.user_id}/dashboard`);
+        navigate(`/students/dashboard`);
       } else if (res.user.role.toLowerCase() === "instructor") {
         navigate(`lecturers/${res.user.user_id}/dashboard`);
       } else {

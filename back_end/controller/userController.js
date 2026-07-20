@@ -2,6 +2,7 @@ import bycrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import * as User from '../service/userService.js'
 import dotenv from "dotenv"
+import * as Action from '../service/activityService.js'
 dotenv.config();
 
 export async function createStudentAccount(req, res){
@@ -57,7 +58,11 @@ export async function loginUser( req, res) {
         if (!isPasswordValid) {
             return res.status(400).json({ error: "Invalid email or password." });
         }
+        
         const token = generateAccessToken({ user_id: user.user_id, role: user.user_role, email: user.email });
+
+        Action.userAction(user.user_id, "Login", user.user_role, user.user_id )
+
         res.json({
             login: "success",
             accessToken: token,
@@ -67,7 +72,6 @@ export async function loginUser( req, res) {
                 email: user.email
             }
         });
-
     } catch ( error ) {
         console.error("Error during login:", error);
         res.status(500).json({ message: "Server error" });

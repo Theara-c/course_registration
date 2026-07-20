@@ -8,9 +8,11 @@ import authRoute from './routes/authRoute.js'
 import studentRoute from "./routes/studentRoute.js"
 import adminRouter from "./routes/adminRoute.js"
 import lecturerRouter from "./routes/lecturerRoute.js"
+import errorHandler from "./middleware/errorHandler.js";
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(errorHandler);
 
 app.get("/", async (req, res) => {
   return res.json({ msg: "Hello world" });
@@ -18,8 +20,6 @@ app.get("/", async (req, res) => {
 app.get( '/', async ( req, res) => {
   
 })
-
-
 app.use("/api/courses", courseRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/auth", authRoute );

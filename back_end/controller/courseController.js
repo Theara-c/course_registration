@@ -6,6 +6,8 @@ import { Op, fn, col } from "sequelize";
 
 import { QueryTypes } from 'sequelize';
 import * as courseService from "../service/courseService.js";
+import * as Action from '../service/activityService.js'
+
 
 export async function getAllCourses(req, res) {
   try {
@@ -54,7 +56,25 @@ export async function getCourseById(req, res) {
   try {
     //courses/:id
     id = parseInt(req.params.id);
-    const course = await courseService.getCourseById(id);
+    const course = await courseService.getCourseById(id, 'active');
+    res.json({
+      course: course
+    });
+  } catch (error) {
+    console.error("Error fetching course:", error);
+    res.status(500).json({
+      message: "Cannot fetch course",
+      courseId: id,
+      error: error.message,
+    });
+  }
+}
+export async function getCourseByIdData(req, res) {
+  let id = null;
+  try {
+    //courses/:id
+    id = parseInt(req.params.id);
+    const course = await courseService.getCourseById(id, 'reject');
     res.json(course);
   } catch (error) {
     console.error("Error fetching course:", error);
@@ -65,6 +85,30 @@ export async function getCourseById(req, res) {
     });
   }
 }
+
+export async function getCourseByIdForStudent(req, res) {
+  let id = null;
+  try {
+    const { user_id} = req.user;
+    id = parseInt(req.params.id);
+
+    const check = await courseService.checkExistingEnrollment(user_id, id)
+    
+    const course = await courseService.getCourseById(id, 'active');
+    res.json({
+      isEnroll: check,
+      course: course
+    });
+  } catch (error) {
+    console.error("Error fetching course:", error);
+    res.status(500).json({
+      message: "Cannot fetch course",
+      courseId: id,
+      error: error.message,
+    });
+  }
+}
+
 export async function getVideoData( req, res) {
 
   try {
@@ -78,3 +122,23 @@ export async function getVideoData( req, res) {
     res.status(500).json({ message: "Server error" });
   }
 }
+export async function updateCourse( req, res ) {
+
+  try {
+    const { id} = req.params;
+    const user = req.user;
+    const { title, duration, description, 
+      sub_description, category_id, price, video_id} = req.body;
+    
+    const update = await courseService.updateCourseData({ title, duration, description, 
+      sub_description, category_id, price, video_id}, id );
+      Action.userAction(user.user_id, 'Update', 'Course', id);
+      res.json({
+        msg: "Update Successfully"
+      })
+
+  } catch (error) {
+    console.error('Error update course field', error)
+    res.status(500).json({msg: "Server error"})
+  }
+} 

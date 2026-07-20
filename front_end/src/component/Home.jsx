@@ -157,7 +157,8 @@ export default function LandingPage() {
           </p>
 
           <div className="flex justify-center gap-4 mt-8 flex-wrap">
-            <button className="bg-blue-500 px-6 py-3 text-black cursor-pointer rounded-lg font-medium hover:text-white">
+            <button className="bg-blue-500 px-6 py-3 text-black cursor-pointer rounded-lg font-medium hover:text-white"
+            onClick = { () => navigate('/courses')}>
               Enroll Now
             </button>
 
