@@ -76,3 +76,19 @@ export const getUserManagement = async ( token, params) =>  {
   }
 
 }
+export const getActivityLog = async (token) => {
+  try {
+    const res = await API_BASE.get(
+      `/admin/dashboard/activity`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error updating course status:", error);
+    throw error;
+  }
+}

@@ -4,6 +4,7 @@ import { generateAccessToken } from './userController.js'
 import dotenv from "dotenv"
 import * as User from '../service/userService.js'
 import * as Course from "../service/courseService.js"
+import * as Action from '../service/activityService.js'
 dotenv.config();
 export async function createLecturerAccount(req, res) {
   try {
@@ -76,12 +77,13 @@ export async function getAdminDashboard(req, res) {
 export async function updateCourseStatus (req, res) {
   try {
     const { status, course_id} = req.body;
+    const { user_id} = req.user.user_id;
     const result = await Course.updateStatus( course_id, status);
+      Action.userAction(user_id,`Update Status ${status}`, "Course", course_id )
+
     res.json( {
       msg: "Update Successfully"
     })
-
-
   } catch (error) {
     console.error(error);
         res.status(500).json({
@@ -135,4 +137,19 @@ export async function getUserManagement(req, res) {
 
     }
 
+}
+export async function getUserActivity (req,res) {
+
+  try {
+    const result = await Action.getUserActivityLog();
+    res.json(result)
+
+
+  } catch (error) {
+      console.error(error);
+
+        res.status(500).json({
+            message: "Server Error",
+        });
+  }
 }

@@ -5,7 +5,6 @@ export function authorizeRole(...roles) {
                 message: "Forbidden",
             });
         }
-
         next();
     };
 }

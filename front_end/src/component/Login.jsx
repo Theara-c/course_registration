@@ -92,7 +92,7 @@ function Login() {
               >
                 <i
                   className={`fa-solid ${
-                    showPassword ? "fa-eye-slash" : "fa-eye"
+                    showPassword ? "fa-eye" : "fa-eye-slash"
                   }`}
                 ></i>
               </button>

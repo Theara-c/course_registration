@@ -9,6 +9,8 @@ import {
 import { getCourseEnrollment } from "../../api/lecturerAPI";
 import LecturerLayout from "../../component/LecturerLayout";
 import { useNavigate } from "react-router-dom";
+import { updateStatus } from "../../api/enrollmentAPI";
+import { toast } from "react-toastify";
 
 export default function StudentManagement() {
   const [tab, setTab] = useState("students");
@@ -41,6 +43,18 @@ export default function StudentManagement() {
       const handleDate = (date) => {
     return new Date(date).toLocaleDateString();
   };
+
+  const handleRequest = async (user_id,id, mode) => {
+    const res = await updateStatus(user_id, id, mode, token);
+    console.log(res);
+    toast.success(res.msg);
+setData((pre) => {
+  return {
+    ...pre, 
+    students: pre.students.filter((s) => s.course_id !== id) 
+  };
+});
+  }
 
   return (
     <LecturerLayout > 
@@ -151,6 +165,7 @@ export default function StudentManagement() {
 
               <th className="p-4">#</th>
               <th>Student ID</th>
+              <th>Course ID</th>
               <th>Student Name</th>
 
               {tab === "students" ? (
@@ -178,6 +193,7 @@ export default function StudentManagement() {
                   <td className="p-4">{index + 1}</td>
 
                   <td>{student.user_id}</td>
+                  <td>{student.course_id}</td>
 
                   <td className="font-medium">
                     {student.full_name}
@@ -221,22 +237,27 @@ export default function StudentManagement() {
                   <td className="p-4">{index + 1}</td>
 
                   <td>{student.user_id}</td>
+                  <td>{student.course_id}</td>
 
                   <td>{student.full_name}</td>
-
                   <td>{handleDate(student.enrolled_at)}</td>
-
                   <td>
-
                     <div className="flex gap-2">
 
-                      <button className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-red-600 hover:bg-red-100">
-                        <X size={16} />
+                      <button className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-red-600 hover:bg-red-100"
+                        onClick = { () => handleRequest(student.user_id,student.course_id, 'reject')} 
+                      >
+                        <X size={16} 
+                        />
                         Reject
                       </button>
 
-                      <button className="flex items-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-white hover:bg-green-700">
-                        <Check size={16} />
+                      <button className="flex items-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-white hover:bg-green-700"
+                      
+                        onClick = { () => handleRequest(student.user_id,student.course_id, 'enrolled')}
+                      >
+                        <Check size={16}
+                         />
                         Approve
                       </button>
 

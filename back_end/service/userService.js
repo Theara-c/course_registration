@@ -1,6 +1,7 @@
 import { sequelize } from "../database/db.js";
 import { Op, fn, col, QueryTypes } from "sequelize";
 import { User } from "../models/relationship.js";
+import * as Action from '../service/activityService.js'
 
 export async function checkExistingUser(email) {
   try {
@@ -26,7 +27,7 @@ export async function createStudent(full_name, email, password, dob, phone_numbe
       phone_number: phone_number,
       gender: gender
     });
-
+    Action.userAction(newStudent.user_id, "Create Student Account", "User", newStudent.user_id )
     return newStudent.user_id; 
   } catch (error) {
     console.error("Error creating student:", error);
@@ -47,7 +48,7 @@ export async function getUserById(user_id) {
   }
 }
 
-export async function createLecturer( full_name, email, password, dob, phone_number, gender, specialization, telegram_link ) {
+export async function createLecturer( full_name, email, password, specialization, telegram_link ) {
   try {
     const newLecturer = await User.create({
       full_name: full_name,
@@ -58,6 +59,8 @@ export async function createLecturer( full_name, email, password, dob, phone_num
       user_role: "lecturer"
       
     });
+      Action.userAction(newLecturer.user_id, "Create Lecturer Acc", "User", newLecturer.user_id )
+
     return newLecturer.user_id;
   } catch (error) {
     console.error("Error creating lecturer:", error);
@@ -93,6 +96,8 @@ export async function getPendingCourses(category = null) {
             c.course_id,
             c.title,
             c.created_at,
+            c.video_id,
+            c.price,
             cat.category_name,
 
             u.user_id,
@@ -218,3 +223,4 @@ export async function getUserStatistics() {
 
     return result;
 }
+

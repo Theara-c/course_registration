@@ -24,7 +24,8 @@ export default function LecturerDashboard() {
   const [loading, setLoading] = useState(true);
   const [create, setCreate] = useState(false);
   const [category, setCategory] = useState([]);
-
+  const [editCourse, setEditCourse] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
 
   // State to manage Night / Day mode
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -34,10 +35,8 @@ export default function LecturerDashboard() {
     const fetchCourses = async () => {
       try {
         const token = localStorage.getItem("accessToken");
-        console.log("Token retrieved from localStorage:", token);
         const res = await getLecturerDashboard(token);
         setData(res);
-        console.log("this is lecturer data", res.courses);
       } catch (error) {
         console.error("Error fetching courses:", error);
       } finally {
@@ -46,18 +45,20 @@ export default function LecturerDashboard() {
     };
     fetchCourses();
   }, []);
-    useEffect( () => {
+  useEffect(() => {
     const fetchCategory = async () => {
       try {
         const c = await getCategory();
-        console.log(c)
         setCategory(c);
       } catch (err) {
         console.log("Error", err);
       }
     };
     fetchCategory();
-  }, [create])
+  }, [create]);
+  const secondToMin = (second) => {
+    return (second / 60).toFixed(1);
+  };
 
   return (
     <LecturerLayout activeTab="courses" setCreate={setCreate}>
@@ -184,7 +185,6 @@ export default function LecturerDashboard() {
                           alt={c.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                        
                       </>
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-[#6C63FF]/20 to-[#7C6FFF]/20 flex items-center justify-center relative">
@@ -202,7 +202,7 @@ export default function LecturerDashboard() {
                     {/* Status Badge (Top Right) */}
                     <div className="absolute top-3 right-3">
                       <span
-                        className={`text-[10px] ${c.status == 'waiting'? "bg-yellow-500" :  c.status ==="active"?  "bg-green-500": 'bg-red-500'} text-white font-bold px-2.5 py-1 rounded-full  uppercase  ${
+                        className={`text-[10px] ${c.status == "waiting" ? "bg-yellow-500" : c.status === "active" ? "bg-green-500" : "bg-red-500"} text-white font-bold px-2.5 py-1 rounded-full  uppercase  ${
                           statusStyle[c.status] || statusStyle.Inactive
                         }`}
                       >
@@ -214,7 +214,7 @@ export default function LecturerDashboard() {
                     {c.duration && (
                       <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1">
                         <i className="fa-solid fa-clock text-[10px]"></i>
-                        {c.duration} min
+                        {secondToMin(c.duration)} min
                       </div>
                     )}
 
@@ -258,27 +258,55 @@ export default function LecturerDashboard() {
                 </div>
 
                 {/* Card Action Footer */}
-                <div
-                  className={`px-5 pb-5 pt-3 border-t flex items-center justify-between text-xs font-medium mt-auto ${
-                    isDarkMode
-                      ? "border-[#6C63FF]/10 text-[#94A3B8]"
-                      : "border-gray-100 text-gray-500"
-                  }`}
-                >
-                  <span>
-                    <i className="fa-solid fa-user-group mr-1.5 text-[#6C63FF]/60"></i>
-                    {c.totalStudent || 0} students
-                  </span>
-                  <span className="text-[#6C63FF] group-hover:underline font-semibold flex items-center gap-1"
-                  onClick={() => navigate(`/lecturers/courses/${c.course_id}`)}>
-                    View <i className="fa-solid fa-arrow-right text-[10px]"></i>
-                  </span>
-                </div>
+                {c.status == "waiting" ? (
+                  <button
+                    className={` w-full bg-yellow-500  hover:bg-yellow-300 "}
+                     text-white py-3 rounded-lg transition cursor-pointer`}
+                  >
+                    Waiting...
+                  </button>
+                ) : c.status == "reject" ? (
+                  <button
+                    className={` w-full bg-yellow-500  hover:bg-yellow-300 "}
+                     text-white py-3 rounded-lg transition cursor-pointer`}
+                    onClick={() => {
+                      setIsEdit(true);
+                      setEditCourse(c.course_id);
+                    }}
+                  >
+                    Edit Course
+                  </button>
+                ) : (
+                  <div
+                    className={`px-5 pb-5 pt-3 border-t flex items-center justify-between text-xs font-medium mt-auto ${
+                      isDarkMode
+                        ? "border-[#6C63FF]/10 text-[#94A3B8]"
+                        : "border-gray-100 text-gray-500"
+                    }`}
+                  >
+                    <span>
+                      <i className="fa-solid fa-user-group mr-1.5 text-[#6C63FF]/60"></i>
+                      {c.totalStudent || 0} students
+                    </span>
+                    <span
+                      className="text-[#6C63FF] group-hover:underline font-semibold flex items-center gap-1"
+                      onClick={() =>
+                        navigate(`/lecturers/courses/${c.course_id}`)
+                      }
+                    >
+                      View{" "}
+                      <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                    </span>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         )}
       </div>
+      {isEdit && <CreateCourse setCreate={setIsEdit} category={category} course_id = { editCourse} />}
+
+      
     </LecturerLayout>
   );
 }

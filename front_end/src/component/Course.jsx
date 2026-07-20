@@ -13,7 +13,7 @@ export default function Course() {
   const params = new URLSearchParams(searchParams);
   const page = Number(searchParams.get("page")) || 1;
   const totalPages = data.totalPages || 1;
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const token = localStorage.getItem("accessToken");
 
   useEffect(() => {

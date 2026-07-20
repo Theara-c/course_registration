@@ -39,7 +39,7 @@ export async function updateEnrollmentProgress( req, res) {
 export async function getUserInfo( req, res) {
     try {
         
-        const { id } = req.params;
+        const id = req.user.user_id;
 
         const { filter} = req.query;
         // res.json( req.query);

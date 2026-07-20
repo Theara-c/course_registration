@@ -9,13 +9,17 @@ export async function createEnrollment (user_id, course_id, status ) {
 
     return res;
 }
-export async function updateStatus(user_id, course_id, status) {
-    const res = await API_BASE.patch(`/courses/${course_id}/update`, {
-        user_id,
+export async function updateStatus( user_id,course_id, status, token) {
+    const res = await API_BASE.patch(`/lecturers/courses/update`, {
         course_id,
+        user_id,
         status
-    })
-
+    }, 
+{
+    headers: {
+        Authorization: `Bearer ${token}  `
+    }
+})
     return res;
 }
 export async function updateEnrollmentProgress(user_id, course_id, progress) {
@@ -27,8 +31,14 @@ export async function updateEnrollmentProgress(user_id, course_id, progress) {
     });
     return res;
 }
-export async function studentDashboard(user_id, filter) {
-    const res = await API_BASE.get(`/students/${user_id}/dashboard?${filter}`);
+export async function studentDashboard(token, filter) {
+    const res = await API_BASE.get(`/students/dashboard?${filter}`, 
+        { 
+            headers: {
+                Authorization:  `Bearer ${token}`
+            },
+        }
+    );
     return res.data;
 }
 export async function getVideoData(course_id, user_id) {

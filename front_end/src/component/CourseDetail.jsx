@@ -1,5 +1,4 @@
 import { useParams, useNavigate } from "react-router-dom";
-import Confirmation from "../component/Confirmation.jsx";
 import { useState } from "react";
 import { useEffect } from "react";
 import { getCourseById } from "../api/courseApi";
@@ -10,22 +9,26 @@ function CourseDetail() {
   const [isEnroll, setIsEnroll] = useState(false);
   const [isRequest, setIsRequest] = useState(false);
   const [confirm, setConfirm] = useState(false);
-  const [paid, setPaid] = useState(true);
+  
   const [data, setData] = useState([]);
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const fetchCourseById = async (id) => {
-    try {
-      const c = await getCourseById(id);
-      setData(c);
-      setPaid(c.price > 0);
-    } catch (error) {
-      console.log({ msg: "Error fetching" }, error);
-    }
-  };
-
+  const token = localStorage.getItem('accessToken')
+  const paid = data.price > 0 ? 1: 0;
+  
   useEffect(() => {
+    const fetchCourseById = async () => {
+      try {
+        const c = await getCourseById(id, token);
+        setData(c.course);
+        console.log(c)
+        setIsEnroll(c.isEnroll)
+      } catch (error) {
+        console.log({ msg: "Error fetching" }, error);
+      }
+    };
+
     fetchCourseById(id);
   }, [id]);
 
@@ -40,7 +43,6 @@ function CourseDetail() {
   }
   const handleConfirm = async () => {
     setConfirm(false);
-    setIsEnroll(true);
     console.log("paid", paid)
     let status;
     if (!paid) {
@@ -48,11 +50,19 @@ function CourseDetail() {
     } else {
       status = "waiting"
     }
+    console.log(user)
+    const role = user?.role.toLowerCase();
+    
+    if ( role === 'admin' || role.toLowerCase() === 'lecturer') {
+      toast.error('U have no right to enroll in course!');
+      return;
+    }
     const res = await createEnrollmentRecord(status);
     console.log(res);
     if ( status === "waiting") {
       setIsRequest(true);
     }
+    setIsEnroll(true);
     toast.success("Enrolled Successfully.");
   }
 
@@ -95,9 +105,9 @@ function CourseDetail() {
             <i className="fa-solid fa-circle-user text-4xl text-[#142175] mb-5"></i>
 
             <div className="mb-5">
-              <h4 className="font-bold text-black ">{data.full_name}</h4>
+              <h4 className="font-bold text-black ">{data.instructor?.full_name}</h4>
 
-              <p className="text-gray-500 text-sm">{data.specialization}</p>
+              <p className="text-gray-500 text-sm">{data.instructor?.specialization}</p>
             </div>
           </div>
 
@@ -123,7 +133,7 @@ function CourseDetail() {
             <div className="p-5">
               <div className="flex justify-between items-center">
                 <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">
-                  {data.category_name}
+                  {data.category?.category_name}
                 </span>
 
                 <span>⭐ {data.rating ? parseInt(data.rating) : 3}</span>

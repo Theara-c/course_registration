@@ -9,13 +9,13 @@ function StudentDashboard() {
   const [userInfo, setUserInfo] = useState({});
   const { user } = useAuth();
   const navigate = useNavigate();
-
+  const token = localStorage.getItem('accessToken');
   useEffect(() => {
     const fetchData = async () => {
       try {
         console.log("filter mode", searchParams.toString());
         const data = await studentDashboard(
-          user.user_id,
+          token,
           searchParams.toString(),
         );
         setEnrollment(data.enrollmentRecord);
@@ -166,23 +166,19 @@ function StudentDashboard() {
                     </div>
 
                     <button
-                      className={`mt-6 w-full  ${course.status === "completed" ? "bg-green-600 hover:bg-green-800" : course.status === "waiting" ? "bg-red-500 hover:bg-red-600" : "bg-[#142175] hover:bg-blue-600"}
+                      className={`mt-6 w-full  ${course.status === "waiting" ? "bg-yellow-500 hover:bg-yellow-600" :
+                        course.status === 'reject'? 'bg-red-500 hover:bg-red-400': "bg-[#142175] hover:bg-blue-600"}
                      text-white py-3 rounded-lg transition cursor-pointer`}
                       disabled={course.status === "waiting" ? true : false}
                       onClick = {() => {
-                        if (course.status === "completed") {
-                          window.location.href = `/certificate/${course.course_id}`;
-                        } else if (course.status === "enrolled") {
+                        if (course.status === "enrolled") {
                           navigate(`/courses/${course.course_id}/watch`, { state: { course } });  
-
                       } }
                     }
                     >
-                      {course.status === "completed"
-                        ? "View Certificate → "
-                        : course.status === "waiting"
+                      {course.status === "waiting"
                           ? "Waiting Approval"
-                          : "Resume Lesson →"}
+                          : course.status ==='reject'? 'Request reject': "Resume Lesson →"}
                     </button>
                   </div>
                 </div>
